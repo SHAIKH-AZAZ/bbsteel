@@ -9,6 +9,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
 <style>
 :root {
   --concrete: #FFFFFF;
@@ -241,6 +244,9 @@ tfoot td { font-weight: 700; border-bottom: 0; }
 .sv-thin { stroke: var(--ink); stroke-width: 1.2; }
 .sv-dist { stroke: var(--steel); stroke-width: 1; }
 .sv-faint { stroke: var(--steel); stroke-width: 1; opacity: .35; }
+.katex { font-size: 1.04em; }
+.bb-table .katex { font-size: 1em; }
+mark .katex { font-weight: 400; }
 .sv-t.halo { paint-order: stroke; stroke: var(--fill); stroke-width: 4px; stroke-linejoin: round; }
 .sv-beam { fill: var(--rule); stroke: var(--steel); stroke-width: 1.2; }
 .sv-lap { fill: none; stroke: var(--moss); stroke-width: 5; stroke-linecap: round; }
@@ -262,11 +268,23 @@ tfoot td { font-weight: 700; border-bottom: 0; }
 
 /* problem: by hand vs BBSteel */
 .vs { margin-top: clamp(40px, 6vw, 64px); border-top: 1px solid var(--rule); }
-.vs-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(20px, 4vw, 56px); padding-block: 18px; border-bottom: 1px solid var(--rule); }
+.vs-row { display: grid; grid-template-columns: 10rem minmax(0, 1fr) minmax(0, 1fr); gap: clamp(20px, 3.5vw, 48px); padding-block: 18px; border-bottom: 1px solid var(--rule); }
 .vs-row > div { max-width: 34rem; }
-.vs-row > div:first-child { color: var(--ink-soft); }
+.vs-row > [data-l="By hand"] { color: var(--ink-soft); }
+.vs-topic { font-weight: 700; font-size: .9375rem; color: var(--ink); padding-top: 1px; }
+.vs-row > [data-l] { position: relative; padding-left: 30px; }
+.vs-row > [data-l]::before {
+  position: absolute; left: 0; top: 2px; width: 20px; height: 20px; border-radius: 50%;
+  display: grid; place-items: center; font-size: .75rem; font-weight: 700; line-height: 1;
+}
+.vs-row > [data-l="By hand"]::before { content: "✕"; background: #FDECE7; color: #C2410C; }
+.vs-row > [data-l="With BBSteel"]::before { content: "✓"; background: var(--tint); color: var(--moss); }
+mark.good, mark.bad { padding: 1px 5px; border-radius: 4px; -webkit-box-decoration-break: clone; box-decoration-break: clone; font-weight: 600; }
+mark.good { background: var(--tint); color: #006B18; }
+mark.bad { background: #FDECE7; color: #B4472B; }
 .vs-head { font-weight: 700; font-size: clamp(1.15rem, 1.8vw, 1.4rem); line-height: 1.2; padding-block: 18px; }
-.vs-head > div:first-child { color: var(--ink-soft); }
+.vs-head > div:nth-child(2) { color: var(--ink-soft); padding-left: 30px; }
+.vs-head > div:nth-child(3) { padding-left: 30px; }
 .vs-head > div:last-child { color: var(--moss); }
 
 /* AI extraction visual */
@@ -416,10 +434,9 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
   .hero-foot { grid-template-columns: 1fr; }
   .compare { grid-template-columns: 1fr; }
   .cover-row { grid-template-columns: 1fr; gap: 10px; }
-  .vs-row { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  .vs-row { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .vs-topic { font-size: .8125rem; color: var(--moss); }
   .vs-head { display: none; }
-  .vs-row > div::before { content: attr(data-l); display: block; font-size: .8125rem; font-weight: 600; color: var(--ink-soft); }
-  .vs-row > div:last-child::before { color: var(--moss); }
   .solvers, .extras, .pillars, .ai-pipeline { grid-template-columns: minmax(0, 1fr); }
   .wk-row { grid-template-columns: minmax(0, 1fr); gap: 6px; }
   .bb-draw { grid-template-columns: minmax(0, 1fr); }
@@ -521,13 +538,13 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
       <h2>The Civil Engineering BBS Bottleneck</h2>
       <p class="lede">Every RCC project requires thousands of reinforcement bars cut and bent to exact geometry. The manual detailing workflow is slow, error-prone, violates seismic safety codes, and wastes tons of expensive steel.</p>
       <div class="vs">
-        <div class="vs-row vs-head" aria-hidden="true"><div>Manual Detailing &amp; Yard Guesswork</div><div>BBSteel Autonomous Engine</div></div>
-        <div class="vs-row"><div data-l="By hand">Detailers spend 4–5 days per floor manually tracing member schedules, grid dimensions, and elevation callouts from CAD/PDFs.</div><div data-l="With BBSteel">Multi-format AI extracts beam schedules, column tables, slab spans, and footing schedules in seconds, presenting them for engineer sign-off.</div></div>
-        <div class="vs-row"><div data-l="By hand">Lap splices often placed in tension zones or inside beam-column joint cores, failing IS 13920 &amp; SP 34 seismic ductile detailing.</div><div data-l="With BBSteel">Automatic lap placement strictly in safe compression zones ($L/3$ or $L/4$), with staggered splices and $135^\circ$ hooks with $10d$ extensions.</div></div>
-        <div class="vs-row"><div data-l="By hand">Bend elongation ignored in manual spreadsheets ($-2d$ at $90^\circ$, $-3d$ at $135^\circ$), causing oversized rebar cages that violate concrete cover.</div><div data-l="With BBSteel">Exact parametric bend deductions applied to every bar mark, ensuring pre-bent steel fits reinforcement forms with design cover intact.</div></div>
-        <div class="vs-row"><div data-l="By hand">Typing errors and formula breaks across Excel sheets lead to procurement mismatches and steel shortages mid-pour.</div><div data-l="With BBSteel">Deterministic bar-math computes cutting lengths, piece counts, and exact diameter-wise tonnage (8–40 mm) into production-ready schedules.</div></div>
-        <div class="vs-row"><div data-l="By hand">When structural drawings undergo revision, engineers spend days recalculating affected elements and updating spreadsheets.</div><div data-l="With BBSteel">Re-upload the revision. Changed members are detected and the entire block recalculates in minutes in background queues.</div></div>
-        <div class="vs-row"><div data-l="By hand">Yard cutters cut bars sequentially per member, generating 12–15% scrap that ends up sold off as scrap metal at a huge loss.</div><div data-l="With BBSteel">Proprietary 1D cutting-stock optimization nests cuts across members, cutting scrap to &lt; 3% and inventorying offcuts $\ge 1\text{m}$ for upper floors.</div></div>
+        <div class="vs-row vs-head" aria-hidden="true"><div></div><div>Manual Detailing &amp; Yard Guesswork</div><div>BBSteel Autonomous Engine</div></div>
+        <div class="vs-row"><div class="vs-topic">Extraction</div><div data-l="By hand">Detailers spend <mark class="bad">4–5 days per floor</mark> manually tracing member schedules, grid dimensions, and elevation callouts from CAD/PDFs.</div><div data-l="With BBSteel">Multi-format AI <mark class="good">extracts beam, column, slab and footing schedules in seconds</mark>, presenting them for engineer sign-off.</div></div>
+        <div class="vs-row"><div class="vs-topic">Lap placement</div><div data-l="By hand">Lap splices often placed <mark class="bad">in tension zones or inside beam-column joint cores</mark>, failing IS 13920 &amp; SP 34 seismic ductile detailing.</div><div data-l="With BBSteel"><mark class="good">Automatic lap placement</mark> strictly in safe compression zones ($L/3$ or $L/4$), with staggered splices and $135^\circ$ hooks with $10d$ extensions.</div></div>
+        <div class="vs-row"><div class="vs-topic">Bend deductions</div><div data-l="By hand"><mark class="bad">Bend elongation ignored</mark> in manual spreadsheets ($-2d$ at $90^\circ$, $-3d$ at $135^\circ$), causing oversized rebar cages that violate concrete cover.</div><div data-l="With BBSteel"><mark class="good">Exact bend deductions on every bar mark</mark>, so pre-bent steel fits the formwork with design cover intact.</div></div>
+        <div class="vs-row"><div class="vs-topic">Bar math</div><div data-l="By hand"><mark class="bad">Typing errors and formula breaks</mark> across Excel sheets lead to procurement mismatches and steel shortages mid-pour.</div><div data-l="With BBSteel"><mark class="good">Deterministic bar math</mark> computes cutting lengths, piece counts and <mark class="good">diameter-wise tonnage (8–40 mm)</mark> into production-ready schedules.</div></div>
+        <div class="vs-row"><div class="vs-topic">Revisions</div><div data-l="By hand">When structural drawings are revised, engineers <mark class="bad">spend days recalculating</mark> affected elements and updating spreadsheets.</div><div data-l="With BBSteel">Re-upload the revision. Changed members are detected and the block <mark class="good">recalculates in minutes</mark> in background queues.</div></div>
+        <div class="vs-row"><div class="vs-topic">Cutting &amp; waste</div><div data-l="By hand">Yard cutters cut bars sequentially per member, generating <mark class="bad">12–15% scrap</mark> that ends up sold as scrap metal at a loss.</div><div data-l="With BBSteel">Proprietary 1D cutting-stock optimisation nests cuts across members, <mark class="good">cutting scrap to &lt; 3%</mark> and <mark class="good">keeping offcuts $\ge 1\,\text{m}$</mark> for upper floors.</div></div>
       </div>
     </div>
   </section>
@@ -567,7 +584,7 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
               </table>
             </div>
           </div>
-          <p class="fine">Illustration. Weights use 1.58 kg/m for 16 mm and 0.395 kg/m for 8 mm; 29 stirrups is 4,200 ÷ 150 + 1.</p>
+          <p class="fine">Illustration. Weights use 1.58 kg/m for 16 mm and 0.395 kg/m for 8 mm; 29 stirrups is $\left\lfloor 4200 / 150 \right\rfloor + 1$.</p>
         </div>
       </div>
     </div>
@@ -600,7 +617,7 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
             </div>
           </div>
           <p class="bb-note" id="bbNote" aria-live="polite"></p>
-          <p class="fine">Simplified textbook formulas for illustration: beam bars run to the far face of each support and bend so the run plus the leg makes up the development length, the column bar is a ground-floor starter with its foot in the footing and a lap above the floor, 135° stirrup hooks of 10d, bend deductions of 2d at 90° and 3d at 135°. In BBSteel every shape's formula lives in your shape library, and project rules such as cover, lap and development length apply to every bar.</p>
+          <p class="fine">Simplified textbook formulas for illustration: beam bars run to the far face of each support and bend so the run plus the leg makes up the development length, the column bar is a ground-floor starter with its foot in the footing and a lap above the floor, $135^\circ$ stirrup hooks of $10d$, bend deductions of $2d$ at $90^\circ$ and $3d$ at $135^\circ$. In BBSteel every shape's formula lives in your shape library, and project rules such as cover, lap and development length apply to every bar.</p>
         </div>
       </div>
     </div>
@@ -1096,7 +1113,7 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
         { mark: "S2", size: "4,200 × 4,500 (150 thk)", top: "Top Extra: 10Φ @ 150 c/c", bot: "Short span: 10Φ @ 150 c/c", stir: "Dist: 8Φ @ 200 c/c" },
         { mark: "S3", size: "1,500 × 3,900 (175 thk)", top: "Cantilever: 12Φ @ 120 c/c", bot: "Nominal: 8Φ @ 200 c/c", stir: "Dist: 8Φ @ 175 c/c" },
       ],
-      code: "✓ IS 456 Table 22 & SP 34 Clause 9: development anchorage into edge beams $L_d - \text{cover}$ calculated."
+      code: "✓ IS 456 Table 22 & SP 34 Clause 9: development anchorage into edge beams $L_d - \\text{cover}$ calculated."
     },
     footing: {
       badge: "Pattern #09: Stepped & Trapezoidal Footing • 98.7% Match",
@@ -1350,9 +1367,9 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
         const L2 = v.L + 2 * (v.w - v.c), leg = d => Math.max(v.ld * d - (v.w - v.c), 0);
         const cut = d => L2 + 2 * leg(d) - (leg(d) > 0 ? 2 * 2 * d : 0);
         return { view: beamSection(v), rows: [
-          { mark: "T", bar: "Top bar", dia: v.dt, no: v.nt, cl: cut(v.dt), f: "L1 + L2 + L3 − 2×2d", shape: uBar(leg(v.dt), L2, leg(v.dt), true) },
-          { mark: "B", bar: "Bottom bar", dia: v.db, no: v.nb, cl: cut(v.db), f: "L1 + L2 + L3 − 2×2d", shape: uBar(leg(v.db), L2, leg(v.db), false) },
-          { mark: "ST", bar: "Stirrup", dia: v.ds, no: Math.floor(v.L / v.s) + 1, cl: 2 * (a + h) + 8 * v.ds, f: "2(a + h) + 2×10d − 3×2d − 2×3d", shape: stirrup(a, h) },
+          { mark: "T", bar: "Top bar", dia: v.dt, no: v.nt, cl: cut(v.dt), f: "$L_1 + L_2 + L_3 - 2 \\times 2d$", shape: uBar(leg(v.dt), L2, leg(v.dt), true) },
+          { mark: "B", bar: "Bottom bar", dia: v.db, no: v.nb, cl: cut(v.db), f: "$L_1 + L_2 + L_3 - 2 \\times 2d$", shape: uBar(leg(v.db), L2, leg(v.db), false) },
+          { mark: "ST", bar: "Stirrup", dia: v.ds, no: Math.floor(v.L / v.s) + 1, cl: 2 * (a + h) + 8 * v.ds, f: "$2(a + h) + 2 \\times 10d - 3 \\times 2d - 2 \\times 3d$", shape: stirrup(a, h) },
         ] };
       },
     },
@@ -1372,8 +1389,8 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
         // L1 foot in the footing, L2 = footing depth less cover, L3 = floor height + lap; one 90° bend.
         const l2 = v.DF - v.cf, l3 = v.H + v.lap * v.d;
         return { view: columnElevation(v), vb: "0 0 260 350", rows: [
-          { mark: "M", bar: "Main bar, from footing", dia: v.d, no: v.n, cl: v.L1 + l2 + l3 - 2 * v.d, f: "L1 + L2 + L3 − 2d", shape: columnBar(v.L1, l2, l3, v.lap * v.d) },
-          { mark: "R", bar: "Tie", dia: v.dt, no: Math.floor(v.H / v.s) + 1, cl: 2 * (a + h) + 8 * v.dt, f: "2(a + h) + 2×10d − 3×2d − 2×3d", shape: stirrup(a, h) },
+          { mark: "M", bar: "Main bar, from footing", dia: v.d, no: v.n, cl: v.L1 + l2 + l3 - 2 * v.d, f: "$L_1 + L_2 + L_3 - 2d$", shape: columnBar(v.L1, l2, l3, v.lap * v.d) },
+          { mark: "R", bar: "Tie", dia: v.dt, no: Math.floor(v.H / v.s) + 1, cl: 2 * (a + h) + 8 * v.dt, f: "$2(a + h) + 2 \\times 10d - 3 \\times 2d - 2 \\times 3d$", shape: stirrup(a, h) },
         ] };
       },
     },
@@ -1388,8 +1405,8 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
         if (v.w <= v.c) return "Support width must be more than the cover.";
         const main = v.Lx + 2 * (v.w - v.c), dist = v.Ly + 2 * (v.w - v.c);
         return { view: slabPlan(v), rows: [
-          { mark: "M", bar: "Main bar, short span", dia: v.dm, no: Math.floor(v.Ly / v.sm) + 1, cl: main, f: "Lx + 2(w − c)", shape: straight(main) },
-          { mark: "D", bar: "Distribution bar", dia: v.dd, no: Math.floor(v.Lx / v.sd) + 1, cl: dist, f: "Ly + 2(w − c)", shape: straight(dist) },
+          { mark: "M", bar: "Main bar, short span", dia: v.dm, no: Math.floor(v.Ly / v.sm) + 1, cl: main, f: "$L_x + 2(w - c)$", shape: straight(main) },
+          { mark: "D", bar: "Distribution bar", dia: v.dd, no: Math.floor(v.Lx / v.sd) + 1, cl: dist, f: "$L_y + 2(w - c)$", shape: straight(dist) },
         ] };
       },
     },
@@ -1404,8 +1421,8 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
         if (v.L <= 2 * v.c || v.B <= 2 * v.c || v.D <= 2 * v.c) return "Cover is too large for this footing.";
         const leg = v.D - 2 * v.c, bx = v.L - 2 * v.c, by = v.B - 2 * v.c;
         return { view: footingSection(v), rows: [
-          { mark: "X", bar: "Bottom bar along L", dia: v.dx, no: Math.floor(by / v.sx) + 1, cl: bx + 2 * leg - 4 * v.dx, f: "(L − 2c) + 2(D − 2c) − 2×2d", shape: tray(bx, leg) },
-          { mark: "Y", bar: "Bottom bar along B", dia: v.dy, no: Math.floor(bx / v.sy) + 1, cl: by + 2 * leg - 4 * v.dy, f: "(B − 2c) + 2(D − 2c) − 2×2d", shape: tray(by, leg) },
+          { mark: "X", bar: "Bottom bar along L", dia: v.dx, no: Math.floor(by / v.sx) + 1, cl: bx + 2 * leg - 4 * v.dx, f: "$(L - 2c) + 2(D - 2c) - 2 \\times 2d$", shape: tray(bx, leg) },
+          { mark: "Y", bar: "Bottom bar along B", dia: v.dy, no: Math.floor(bx / v.sy) + 1, cl: by + 2 * leg - 4 * v.dy, f: "$(B - 2c) + 2(D - 2c) - 2 \\times 2d$", shape: tray(by, leg) },
         ] };
       },
     },
@@ -1564,6 +1581,22 @@ document.addEventListener("pointerdown", e => {
   all();
   new MutationObserver(all).observe(document.body, { childList: true, subtree: true });
 })();
+</script>
+<script>
+// Render $...$ formulas with KaTeX: once on load, then wherever scripts rewrite content (builder table, AI panels).
+window.addEventListener("load", () => {
+  if (!window.renderMathInElement) return;              // CDN blocked: formulas stay as plain $...$ text
+  const opts = { delimiters: [{ left: "$", right: "$", display: false }], throwOnError: false, ignoredTags: ["script", "noscript", "style", "textarea", "option", "svg"] };
+  renderMathInElement(document.body, opts);
+  const pending = new Set();
+  new MutationObserver(ms => {
+    for (const m of ms) {
+      const el = m.target.nodeType === 1 ? m.target : m.target.parentElement;
+      if (el && el.textContent.includes("$") && !el.closest(".katex")) pending.add(el);
+    }
+    if (pending.size) queueMicrotask(() => { pending.forEach(el => el.isConnected && renderMathInElement(el, opts)); pending.clear(); });
+  }).observe(document.body, { childList: true, subtree: true, characterData: true });
+});
 </script>
 </body>
 </html>
