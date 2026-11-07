@@ -429,7 +429,26 @@ mark.bad { background: #FDECE7; color: #B4472B; }
 .deliv-icon { width: 52px; height: 52px; border-radius: 12px; background: var(--tint); color: var(--moss); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 14px; font-size: 1.25rem; font-weight: 700; }
 .deliv-card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 8px; }
 .deliv-card p { font-size: .9375rem; color: var(--ink-soft); margin-bottom: 14px; flex-grow: 1; }
-.deliv-preview { background: var(--fill); border: 1px solid var(--rule); border-radius: 6px; padding: 10px; font-size: .8125rem; font-family: monospace; color: var(--ink); overflow-x: auto; line-height: 1.45; }
+.deliv-preview { background: var(--fill); border: 1px solid var(--rule); border-radius: 8px; padding: 10px 12px; font-size: .8125rem; color: var(--ink); line-height: 1.4; }
+.pv-head { font-size: .75rem; color: var(--ink-soft); margin-bottom: 6px; }
+.pv-dl { margin: 0; }
+.pv-dl > div { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 4px 0; border-bottom: 1px solid var(--rule); }
+.pv-dl > div:last-child { border-bottom: 0; }
+.pv-dl dt { color: var(--ink-soft); }
+.pv-dl dd { margin: 0; font-weight: 600; text-align: right; }
+.pv-dl .bad dd { color: #B4472B; }
+.pv-dl .good dd { color: var(--accent-ink, #006B18); }
+table.pv { min-width: 0; width: 100%; font-size: .8125rem; }
+table.pv th, table.pv td { padding: 4px 3px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--rule); }
+table.pv th { font-size: .6875rem; font-weight: 600; color: var(--ink-soft); }
+table.pv th:first-child, table.pv td:first-child { text-align: left; }
+table.pv tfoot td { font-weight: 700; border-bottom: 0; }
+table.pv tfoot td:first-child { color: var(--ink-soft); font-weight: 600; }
+.pv-strip { display: flex; height: 20px; border-radius: 4px; overflow: hidden; margin-bottom: 6px; }
+.pv-strip span { display: grid; place-items: center; min-width: 0; font-size: .625rem; font-weight: 700; color: #fff; background: var(--steel); box-shadow: inset -2px 0 0 var(--fill); }
+.pv-strip .s { background: #C2410C; box-shadow: none; }
+.pv-crumb { display: flex; align-items: center; flex-wrap: wrap; gap: 2px; font-weight: 600; margin-bottom: 4px; }
+.pv-crumb .ti { width: 14px; height: 14px; color: var(--steel); }
 
 /* coverage */
 .cover { margin-top: clamp(40px, 6vw, 64px); }
@@ -459,6 +478,13 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
   .nav ul { display: none; }
 }
 @media (max-width: 640px) {
+  /* hero pills: one flowing line of text instead of two squeezed columns */
+  .ribbon-pill { display: block; border-radius: 12px; padding: 8px 12px; line-height: 1.45; }
+  .ribbon-pill .ti { display: inline-block; vertical-align: -3px; margin-right: 6px; }
+  .ribbon-pill strong { margin-right: 4px; }
+  /* long drawings (beam front view): keep them readable and let the figure scroll sideways */
+  .bb-draw.wide .bb-fig { overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; }
+  .bb-draw.wide .bb-fig svg { width: 600px; max-width: none; }
   .hero-foot { grid-template-columns: 1fr; }
   .compare { grid-template-columns: 1fr; }
   .cover-row { grid-template-columns: 1fr; gap: 10px; }
@@ -797,9 +823,16 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
           <h3>Bar Bending Schedule (Excel)</h3>
           <p>Complete member-wise BBS with bar mark, diameter breakdown (8 to 40 mm), cutting lengths, unit weights, and total steel weight in Metric Tonnes.</p>
           <div class="deliv-preview">
-            &gt; B12-T1 | 16mm | 2 Nos | 5,640mm | 17.82 kg<br>
-            &gt; B12-B1 | 16mm | 3 Nos | 5,640mm | 26.73 kg<br>
-            &gt; Diameter Summary: 8mm: 4.2MT | 16mm: 12.8MT
+            <div class="pv-head">Example rows</div>
+            <table class="pv">
+              <thead><tr><th>Bar</th><th>Dia × nos</th><th>Length</th><th>kg</th></tr></thead>
+              <tbody>
+                <tr><td>B12-T</td><td>16 × 2</td><td>5,640</td><td>17.82</td></tr>
+                <tr><td>B12-B</td><td>16 × 3</td><td>5,640</td><td>26.73</td></tr>
+                <tr><td>B12-ST</td><td>8 × 29</td><td>1,192</td><td>13.65</td></tr>
+              </tbody>
+              <tfoot><tr><td colspan="3">Total</td><td>58.21</td></tr></tfoot>
+            </table>
           </div>
         </div>
 
@@ -808,10 +841,13 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
           <h3>Yard Cutting Order Plan</h3>
           <p>Sequenced cutting instructions for bar-bending operators. Tells the yard exactly which cuts to take from each 12 m stock bar with zero guesswork.</p>
           <div class="deliv-preview">
-            &gt; Stock Bar #04 (12,000mm):<br>
-            &gt; Cut 1x 5,180mm (Beam B7-T)<br>
-            &gt; Cut 2x 3,320mm (Col C3-M)<br>
-            &gt; Residual: 180mm scrap (1.5%)
+            <div class="pv-head">Example: stock bar #04, 12,000 mm</div>
+            <div class="pv-strip" aria-hidden="true"><span style="flex:5180">5,180</span><span style="flex:3320">3,320</span><span style="flex:3320">3,320</span><span class="s" style="flex:180"></span></div>
+            <dl class="pv-dl">
+              <div><dt>1 × beam B7 top</dt><dd>5,180</dd></div>
+              <div><dt>2 × column C3 main</dt><dd>3,320</dd></div>
+              <div class="bad"><dt>Scrap</dt><dd>180 (1.5%)</dd></div>
+            </dl>
           </div>
         </div>
 
@@ -820,9 +856,12 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
           <h3>Offcut Inventory Register</h3>
           <p>Pieces $\ge 1\,000\text{ mm}$ are assigned unique tracking IDs and carried over into the project's waste inventory to fulfill stirrups and short cuts on higher floors.</p>
           <div class="deliv-preview">
-            &gt; Offcut #OFF-16-089 (1,450mm, 16Φ)<br>
-            &gt; Origin: Floor 2 Beam B4<br>
-            &gt; Status: Assigned to Floor 3 Cantilever C1
+            <div class="pv-head">Example: offcut OFF-16-089</div>
+            <dl class="pv-dl">
+              <div><dt>Piece</dt><dd>1,450 mm, 16 mm</dd></div>
+              <div><dt>Cut from</dt><dd>Floor 2, beam B4</dd></div>
+              <div class="good"><dt>Reused in</dt><dd>Floor 3, beam B9</dd></div>
+            </dl>
           </div>
         </div>
 
@@ -831,9 +870,13 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
           <h3>Project • Block • Floor Hierarchy</h3>
           <p>Organize multi-tower mega-projects into blocks and floors. Revision tracking automatically diffs modified drawings without losing previous floor logs.</p>
           <div class="deliv-preview">
-            &gt; Tower A &gt; Block 02 &gt; Level 07 Slab<br>
-            &gt; Status: In Review • 48 Elements Extracted<br>
-            &gt; Total Steel: 38.45 MT • Scrap: 2.1%
+            <div class="pv-head">Example</div>
+            <div class="pv-crumb">Tower A<svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6l-6 6"/></svg>Block 02<svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6l-6 6"/></svg>Level 07</div>
+            <dl class="pv-dl">
+              <div><dt>Status</dt><dd>In review</dd></div>
+              <div><dt>Members read</dt><dd>48</dd></div>
+              <div><dt>Steel</dt><dd>38.45 t</dd></div>
+            </dl>
           </div>
         </div>
       </div>
