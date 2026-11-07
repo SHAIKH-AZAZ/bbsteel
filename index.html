@@ -176,7 +176,21 @@ h2 {
 .note dd { margin: 0; }
 .becomes { display: flex; align-items: center; gap: 12px; margin: 14px 0; color: var(--ink-soft); font-size: .9375rem; }
 .becomes::before { content: ""; width: 2px; height: 32px; background: var(--rule); margin-left: 22px; }
-.table-scroll { overflow-x: auto; }
+.table-scroll {
+  overflow-x: auto; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth; scrollbar-width: thin; scrollbar-color: var(--rule) transparent;
+  padding-bottom: 6px;
+}
+.table-scroll.can-drag { cursor: grab; }
+.table-scroll.dragging { cursor: grabbing; user-select: none; scroll-behavior: auto; }
+.table-scroll::-webkit-scrollbar { height: 6px; }
+.table-scroll::-webkit-scrollbar-track { background: transparent; }
+.table-scroll::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 99px; }
+.table-scroll::-webkit-scrollbar-thumb:hover { background: var(--steel); }
+/* fade the edge that still has content behind it */
+.table-scroll.fade-r { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent); }
+.table-scroll.fade-l { -webkit-mask-image: linear-gradient(to right, transparent, #000 32px); mask-image: linear-gradient(to right, transparent, #000 32px); }
+.table-scroll.fade-l.fade-r { -webkit-mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent); }
 table { border-collapse: collapse; width: 100%; font-size: .875rem; min-width: 480px; }
 th, td { text-align: right; padding: 8px 7px; border-bottom: 1px solid var(--rule); white-space: nowrap; }
 th { font-weight: 600; color: var(--ink-soft); font-size: .8125rem; vertical-align: bottom; }
@@ -199,8 +213,8 @@ tfoot td { font-weight: 700; border-bottom: 0; }
 .pillars p { color: var(--ink-soft); }
 
 /* BBS builder */
-.tabs { display: flex; gap: 4px; margin-top: clamp(32px, 5vw, 48px); border-bottom: 1px solid var(--rule); overflow-x: auto; }
-.tabs button { font: inherit; font-weight: 600; padding: 12px 18px; border: 0; background: none; color: var(--ink-soft); border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; white-space: nowrap; }
+.tabs { display: flex; gap: 4px; margin-top: clamp(32px, 5vw, 48px); }
+.tabs button { font: inherit; font-weight: 600; padding: 12px 18px; border: 0; background: none; color: var(--ink-soft); border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; }
 .tabs button:hover { color: var(--ink); }
 .tabs button[aria-selected="true"] { color: var(--moss); border-bottom-color: var(--moss); }
 .bb { display: grid; grid-template-columns: minmax(0, 21rem) minmax(0, 1fr); gap: clamp(24px, 4vw, 48px); margin-top: 28px; align-items: start; }
@@ -318,9 +332,16 @@ tfoot td { font-weight: 700; border-bottom: 0; }
 .ribbon-pill strong { color: var(--moss); }
 
 /* AI tabs & inspection showcase */
-.ai-tabs { display: flex; gap: 6px; margin-top: 32px; margin-bottom: 24px; overflow-x: auto; border-bottom: 1px solid var(--rule); padding-bottom: 2px; }
-.ai-tabs button { font: inherit; font-weight: 600; font-size: .9375rem; padding: 10px 18px; border: 0; background: none; color: var(--ink-soft); border-bottom: 2px solid transparent; margin-bottom: -3px; cursor: pointer; white-space: nowrap; border-radius: 6px 6px 0 0; }
+.ai-tabs { display: flex; gap: 6px; margin-top: 32px; margin-bottom: 24px; }
+.ai-tabs button { font: inherit; font-weight: 600; font-size: .9375rem; padding: 10px 18px; border: 0; background: none; color: var(--ink-soft); border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; border-radius: 6px 6px 0 0; }
 .ai-tabs button:hover { color: var(--ink); }
+/* Tab strips: scroll sideways only, no scrollbar, baseline drawn inside so nothing overflows vertically */
+.tabs, .ai-tabs {
+  overflow-x: auto; overflow-y: hidden; scrollbar-width: none; overscroll-behavior-x: contain;
+  scroll-behavior: smooth; box-shadow: inset 0 -1px 0 var(--rule);
+}
+.tabs::-webkit-scrollbar, .ai-tabs::-webkit-scrollbar { display: none; }
+.tabs button:focus-visible, .ai-tabs button:focus-visible { outline-offset: -3px; }
 .ai-tabs button[aria-selected="true"] { color: var(--moss); border-bottom-color: var(--moss); background: var(--tint); }
 .ai-panel { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 44px); align-items: start; }
 .ai-crop-view { border: 1px solid var(--rule); border-radius: 12px; background: var(--paper); padding: 22px; box-shadow: var(--shadow); position: relative; }
@@ -1419,6 +1440,61 @@ document.addEventListener("pointerdown", e => {
   b.append(s);
   s.addEventListener("animationend", () => s.remove());
 });
+</script>
+<script>
+// Smooth horizontal scrolling for wide tables: edge fades, mouse drag with a short glide.
+(() => {
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const setup = el => {
+    if (el.dataset.smooth) return;
+    el.dataset.smooth = "1";
+    const edges = () => {
+      const max = el.scrollWidth - el.clientWidth;
+      el.classList.toggle("can-drag", max > 1);
+      el.classList.toggle("fade-l", el.scrollLeft > 2);
+      el.classList.toggle("fade-r", el.scrollLeft < max - 2);
+    };
+    el.addEventListener("scroll", edges, { passive: true });
+    new ResizeObserver(edges).observe(el);
+    if (el.firstElementChild) new ResizeObserver(edges).observe(el.firstElementChild);
+    edges();
+
+    let startX = 0, startLeft = 0, lastX = 0, v = 0, raf = 0, down = false;
+    el.addEventListener("pointerdown", e => {
+      if (e.pointerType !== "mouse" || e.button !== 0 || el.scrollWidth <= el.clientWidth) return;
+      if (e.target.closest("input, select, button, a")) return;
+      cancelAnimationFrame(raf);
+      down = true; startX = lastX = e.clientX; startLeft = el.scrollLeft; v = 0;
+      el.setPointerCapture(e.pointerId);
+      el.classList.add("dragging");
+    });
+    el.addEventListener("pointermove", e => {
+      if (!down) return;
+      v = lastX - e.clientX; lastX = e.clientX;
+      el.scrollLeft = startLeft - (e.clientX - startX);
+    });
+    const end = () => {
+      if (!down) return;
+      down = false;
+      if (reduce || Math.abs(v) < 1) { el.classList.remove("dragging"); return; }
+      const glide = () => {
+        v *= 0.92; el.scrollLeft += v;
+        if (Math.abs(v) > 0.4) raf = requestAnimationFrame(glide); else el.classList.remove("dragging");
+      };
+      raf = requestAnimationFrame(glide);
+    };
+    el.addEventListener("pointerup", end);
+    el.addEventListener("pointercancel", end);
+  };
+  // Keep the chosen tab in view when a tab strip is scrolled sideways (phones).
+  document.addEventListener("click", e => {
+    const tab = e.target.closest(".tabs button, .ai-tabs button");
+    if (tab) tab.scrollIntoView({ inline: "nearest", block: "nearest", behavior: reduce ? "auto" : "smooth" });
+  });
+  const all = () => document.querySelectorAll(".table-scroll").forEach(setup);
+  all();
+  new MutationObserver(all).observe(document.body, { childList: true, subtree: true });
+})();
 </script>
 </body>
 </html>
