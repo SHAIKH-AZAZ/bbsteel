@@ -249,6 +249,24 @@ tfoot td { font-weight: 700; border-bottom: 0; }
 .katex { font-size: 1.04em; }
 .bb-table .katex { font-size: 1em; }
 mark .katex { font-weight: 400; }
+#bbPanel [data-mark] { transition: opacity .15s, transform .2s, box-shadow .2s, border-color .2s, background-color .15s; }
+.sv-hit { fill: none; stroke: transparent; stroke-width: 14px; pointer-events: stroke; }
+#bbPanel svg g[data-mark] { cursor: pointer; }
+#bbPanel.has-hl svg g[data-mark]:not(.hl) { opacity: .2; }
+#bbPanel svg g.hl { filter: drop-shadow(0 0 3px rgba(0, 140, 31, .5)); }
+#bbPanel svg g.hl .sv-rod { stroke: var(--moss) !important; stroke-width: 3.4 !important; }
+#bbPanel svg g.hl .sv-st { stroke: #006B18 !important; stroke-width: 2.2 !important; }
+#bbPanel svg g.hl .sv-bar, #bbPanel svg g.hl circle:not(.sv-hit) { fill: var(--moss); }
+#bbPanel svg g.hl .sv-t { fill: var(--moss); }
+#bbPanel svg g.hl .sv-dim { stroke: var(--moss); }
+.shape { cursor: pointer; }
+.shape.hl { border-color: var(--moss); box-shadow: 0 0 0 3px var(--tint), var(--shadow); transform: translateY(-2px); }
+.shape.hl .sv-rod { stroke: var(--moss); }
+#bbPanel.has-hl .shape:not(.hl) { opacity: .5; }
+.bb-table tbody tr { cursor: pointer; }
+.bb-table tbody tr.hl td { background: var(--tint); }
+.bb-table tbody tr:focus-visible { outline: 2px solid var(--moss); outline-offset: -2px; }
+@media (prefers-reduced-motion: reduce) { .shape.hl { transform: none; } }
 .sv-t.halo { paint-order: stroke; stroke: var(--fill); stroke-width: 4px; stroke-linejoin: round; }
 .sv-beam { fill: var(--rule); stroke: var(--steel); stroke-width: 1.2; }
 .sv-lap { fill: none; stroke: var(--moss); stroke-width: 5; stroke-linecap: round; }
@@ -1276,18 +1294,15 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
       const xs = d => [X + (v.c + v.ds + d / 2) * kk, X + w - (v.c + v.ds + d / 2) * kk];
       const ty = Y + (v.c + v.ds + v.dt / 2) * kk, by = Y + h - (v.c + v.ds + v.db / 2) * kk;
       return `<rect class="sv-con" x="${X}" y="${Y}" width="${w}" height="${h}"/>`
-        + `<rect class="sv-st" x="${X + c}" y="${Y + c}" width="${w - 2 * c}" height="${h - 2 * c}" rx="2" style="stroke-width:1.6"/>`
-        + spread(v.nt, ...xs(v.dt)).map(x => dot(x, ty, v.dt)).join("") + spread(v.nb, ...xs(v.db)).map(x => dot(x, by, v.db)).join("")
+        + `<g data-mark="ST"><rect class="sv-st" x="${X + c}" y="${Y + c}" width="${w - 2 * c}" height="${h - 2 * c}" rx="2" style="stroke-width:1.6"/></g>`
+        + `<g data-mark="T">` + spread(v.nt, ...xs(v.dt)).map(x => dot(x, ty, v.dt)).join("") + `</g><g data-mark="B">` + spread(v.nb, ...xs(v.db)).map(x => dot(x, by, v.db)).join("") + `</g>`
         + t(X + w / 2, Y - 10, "A–A", "k", 'text-anchor="middle"') + t(X + w / 2, Y + h + 16, `${fmt(v.b)} × ${fmt(v.D)}`, "", 'text-anchor="middle"');
     })();
     const svg = `${col(x0)}${col(x1 - wp)}
       <rect class="sv-con" x="${xi0}" y="${yb}" width="${xi1 - xi0}" height="${Dp}"/>
-      ${stirrups}
-      <path class="sv-rod" style="stroke-width:2.6" d="M${x0 + cp} ${yT + lt} L${x0 + cp} ${yT} L${x1 - cp} ${yT} L${x1 - cp} ${yT + lt}"/>
-      <path class="sv-rod" style="stroke-width:2.6" d="M${x0 + cp + 5} ${yB - lb} L${x0 + cp + 5} ${yB} L${x1 - cp - 5} ${yB} L${x1 - cp - 5} ${yB - lb}"/>
-      ${callout(xi0 + 46, yT, yb - 24, `${v.nt}-T${v.dt}`, "start")}
-      ${callout(xi1 - 46, yB, yb + Dp + 24, `${v.nb}-T${v.db}`, "end")}
-      ${callout(xm - 30, yb + Dp - cp - 8, yb + Dp + 24, `2L-T${v.ds} @ ${fmt(v.s)} c/c`, "end")}
+      <g data-mark="ST">${stirrups}${callout(xm - 30, yb + Dp - cp - 8, yb + Dp + 24, `2L-T${v.ds} @ ${fmt(v.s)} c/c`, "end")}</g>
+      <g data-mark="T"><path class="sv-rod" style="stroke-width:2.6" d="M${x0 + cp} ${yT + lt} L${x0 + cp} ${yT} L${x1 - cp} ${yT} L${x1 - cp} ${yT + lt}"/>${callout(xi0 + 46, yT, yb - 24, `${v.nt}-T${v.dt}`, "start")}</g>
+      <g data-mark="B"><path class="sv-rod" style="stroke-width:2.6" d="M${x0 + cp + 5} ${yB - lb} L${x0 + cp + 5} ${yB} L${x1 - cp - 5} ${yB} L${x1 - cp - 5} ${yB - lb}"/>${callout(xi1 - 46, yB, yb + Dp + 24, `${v.nb}-T${v.db}`, "end")}</g>
       <path class="sv-dim" d="M${xm + 40} ${yb - 16} v12 M${xm + 40} ${yb + Dp + 4} v12"/>
       ${t(xm + 44, yb - 8, "A", "k")}${t(xm + 44, yb + Dp + 16, "A", "k")}
       ${tick(xi0, yb + Dp + 40, xi0, yb + Dp + 62)}${tick(xi1, yb + Dp + 40, xi1, yb + Dp + 62)}${arrow(xi0, yb + Dp + 51, xi1, yb + Dp + 51)}
@@ -1319,8 +1334,8 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
       for (let j = 1; j <= cnt[sd]; j++) { const f = j / (cnt[sd] + 1); pts.push([ax + (bx - ax) * f, ay + (by - ay) * f]); }
     }
     return { w, h, svg: `<rect class="sv-con" x="${X}" y="${Y}" width="${w}" height="${h}"/>
-      <rect class="sv-st" x="${X + c}" y="${Y + c}" width="${w - 2 * c}" height="${h - 2 * c}" rx="2" style="stroke-width:1.6"/>`
-      + pts.map(([cx, cy]) => `<circle class="sv-bar" cx="${cx}" cy="${cy}" r="${Math.max(2.2, v.d * k / 2)}"/>`).join("") };
+      <g data-mark="R"><rect class="sv-st" x="${X + c}" y="${Y + c}" width="${w - 2 * c}" height="${h - 2 * c}" rx="2" style="stroke-width:1.6"/></g>`
+      + `<g data-mark="M">` + pts.map(([cx, cy]) => `<circle class="sv-bar" cx="${cx}" cy="${cy}" r="${Math.max(2.2, v.d * k / 2)}"/>`).join("") + `</g>` };
   };
   // Front view of a ground-floor column: footing, starter bars with a foot, ties, slab, lap above the floor.
   const columnElevation = v => {
@@ -1340,7 +1355,7 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
       <rect class="sv-con" x="14" y="${yS}" width="136" height="${slab}"/>
       <rect class="sv-con" x="${xL}" y="${yS + slab}" width="${xR - xL}" height="${yF - yS - slab}"/>
       <rect class="sv-con" x="10" y="${yF}" width="140" height="${ftH}"/>
-      ${ties}${rods}
+      <g data-mark="R">${ties}</g><g data-mark="M">${rods}</g>
       <line class="sv-dim" style="stroke-dasharray:4 3" x1="${xL - 12}" y1="${mid}" x2="${xR + 6}" y2="${mid}"/>
       ${t(xL - 16, mid + 4, "A", "k", 'text-anchor="end"')}${t(xR + 8, mid + 4, "A", "k")}
       ${tick(124, yS, 144, yS)}${tick(124, yF, 144, yF)}${arrow(134, yS, 134, yF)}
@@ -1377,10 +1392,10 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
     const xm = x + w * .64, yd = y + h * .3;
     return `<rect class="sv-beam" x="${x - band}" y="${y - band}" width="${w + 2 * band}" height="${h + 2 * band}" rx="2"/>
       <rect class="sv-con" x="${x}" y="${y}" width="${w}" height="${h}"/>${faintV}${faintH}
-      <line class="sv-rod" style="stroke:var(--steel);stroke-width:2.4" x1="${x - band + 3}" y1="${yd}" x2="${x + w + band - 3}" y2="${yd}"/>
-      <line class="sv-rod" style="stroke-width:2.8" x1="${xm}" y1="${y - band + 3}" x2="${xm}" y2="${y + h + band - 3}"/>
-      <text class="sv-t halo k" x="${x + 8}" y="${yd - 8}">D  ${v.dd} Φ @ ${fmt(v.sd)}</text><text class="sv-t halo" x="${x + 8}" y="${yd + 17}">${nd} nos</text>
-      <text class="sv-t halo k" x="${xm + 7}" y="${y + h - 26}">M  ${v.dm} Φ @ ${fmt(v.sm)}</text><text class="sv-t halo" x="${xm + 7}" y="${y + h - 10}">${nm} nos</text>
+      <g data-mark="D"><line class="sv-rod" style="stroke:var(--steel);stroke-width:2.4" x1="${x - band + 3}" y1="${yd}" x2="${x + w + band - 3}" y2="${yd}"/>
+      <text class="sv-t halo k" x="${x + 8}" y="${yd - 8}">D  ${v.dd} Φ @ ${fmt(v.sd)}</text><text class="sv-t halo" x="${x + 8}" y="${yd + 17}">${nd} nos</text></g>
+      <g data-mark="M"><line class="sv-rod" style="stroke-width:2.8" x1="${xm}" y1="${y - band + 3}" x2="${xm}" y2="${y + h + band - 3}"/>
+      <text class="sv-t halo k" x="${xm + 7}" y="${y + h - 26}">M  ${v.dm} Φ @ ${fmt(v.sm)}</text><text class="sv-t halo" x="${xm + 7}" y="${y + h - 10}">${nm} nos</text></g>
       ${tick(x, y + h + band + 6, x, y + h + band + 26)}${tick(x + w, y + h + band + 6, x + w, y + h + band + 26)}${arrow(x, y + h + band + 16, x + w, y + h + band + 16)}
       ${dimLabel(x + w / 2, y + h + band + 40, "Ly", v.Ly)}
       ${tick(x + w + band + 4, y, x + w + band + 24, y)}${tick(x + w + band + 4, y + h, x + w + band + 24, y + h)}${arrow(x + w + band + 14, y, x + w + band + 14, y + h)}
@@ -1393,7 +1408,7 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
     const dots = spread(ny, x + c + 6, x + w - c - 6).map(px => `<circle class="sv-bar" cx="${px}" cy="${y + h - c - 7}" r="3"/>`).join("");
     return `<rect class="sv-stub" x="${x + (w - cw) / 2}" y="${y - 40}" width="${cw}" height="40"/>
       <rect class="sv-con" x="${x}" y="${y}" width="${w}" height="${h}"/>
-      <polyline class="sv-rod" points="${x + c},${y + c} ${x + c},${y + h - c} ${x + w - c},${y + h - c} ${x + w - c},${y + c}"/>${dots}
+      <g data-mark="X"><polyline class="sv-rod" points="${x + c},${y + c} ${x + c},${y + h - c} ${x + w - c},${y + h - c} ${x + w - c},${y + c}"/></g><g data-mark="Y">${dots}</g>
       ${t(x + w / 2, y + h + 18, "L = " + fmt(v.L), "", 'text-anchor="middle"')}
       ${t(x + w + 8, y + h / 2 + 4, "D = " + fmt(v.D))}
       ${t(x + (w - cw) / 2 + cw + 6, y - 24, "column")}`;
@@ -1512,22 +1527,42 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
     view.setAttribute("viewBox", r.vb || "0 0 260 280");
     view.closest(".bb-draw").classList.toggle("wide", !!r.wide);
     view.innerHTML = r.view;
-    shapes.innerHTML = r.rows.map(x => `<figure class="shape"><figcaption>${x.mark}: ${x.bar}</figcaption>${x.shape}</figure>`).join("");
+    shapes.innerHTML = r.rows.map(x => `<figure class="shape" data-mark="${x.mark}" tabindex="0"><figcaption>${x.mark}: ${x.bar}</figcaption>${x.shape}</figure>`).join("");
     let kg = 0;
     rows.innerHTML = r.rows.map(x => {
       const w = x.no * x.cl / 1000 * UNIT_KG[x.dia]; kg += w;
-      return `<tr><td>${x.mark}</td><td>${x.bar}</td><td>${x.dia}</td><td>${x.no}</td><td>${fmt(x.cl)}</td><td>${x.f}</td><td>${w.toFixed(2)}</td></tr>`;
+      return `<tr data-mark="${x.mark}" tabindex="0"><td>${x.mark}</td><td>${x.bar}</td><td>${x.dia}</td><td>${x.no}</td><td>${fmt(x.cl)}</td><td>${x.f}</td><td>${w.toFixed(2)}</td></tr>`;
     }).join("");
     total.textContent = kg.toFixed(2);
+    addHitAreas(); light(lit);
   };
   form.addEventListener("input", render);
+
+  /* ---------- linked highlight: one bar lights up in the drawing, its shape card and its schedule row ---------- */
+  const panel = document.getElementById("bbPanel");
+  let pinned = null, lit = null;
+  const light = m => {
+    lit = m || null;
+    panel.classList.toggle("has-hl", !!lit);
+    panel.querySelectorAll("[data-mark]").forEach(el => el.classList.toggle("hl", el.dataset.mark === lit));
+  };
+  const addHitAreas = () => view.querySelectorAll("g[data-mark]").forEach(g =>
+    g.querySelectorAll("path, line, polyline, circle, rect").forEach(el => {
+      const hit = el.cloneNode(); hit.setAttribute("class", "sv-hit"); hit.removeAttribute("style"); g.insertBefore(hit, el);
+    }));
+  const markAt = e => e.target.closest && e.target.closest("[data-mark]");
+  panel.addEventListener("pointerover", e => { const el = markAt(e); light(el ? el.dataset.mark : pinned); });
+  panel.addEventListener("pointerleave", () => light(pinned));
+  panel.addEventListener("focusin", e => { const el = markAt(e); if (el) light(el.dataset.mark); });
+  panel.addEventListener("focusout", () => light(pinned));
+  panel.addEventListener("click", e => { const el = markAt(e); pinned = el && pinned !== el.dataset.mark ? el.dataset.mark : null; light(pinned || (el && el.dataset.mark)); });
 
   const tabs = [...document.querySelectorAll('.tabs [role="tab"]')];
   const select = btn => {
     stopTyping();
     tabs.forEach(b => { const on = b === btn; b.setAttribute("aria-selected", on); b.tabIndex = on ? 0 : -1; });
     document.getElementById("bbPanel").setAttribute("aria-labelledby", btn.id);
-    cur = btn.dataset.el; build(); render();
+    cur = btn.dataset.el; pinned = null; lit = null; build(); render();
   };
   tabs.forEach((b, i) => {
     b.addEventListener("click", () => select(b));
