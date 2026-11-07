@@ -162,7 +162,7 @@ h2 {
 .lede { margin-top: 20px; max-width: 38rem; color: var(--ink-soft); font-size: 1.1875rem; }
 
 /* how it works */
-.how > *, .waste-grid > *, .compare > * { min-width: 0; }
+.how > *, .waste-grid > *, .compare > *, .bb > *, .bb-draw > * { min-width: 0; }
 .how { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: clamp(40px, 6vw, 96px); margin-top: clamp(40px, 6vw, 72px); align-items: start; }
 .steps { list-style: none; padding: 0; counter-reset: s; }
 .steps li { counter-increment: s; display: grid; grid-template-columns: 3.2rem minmax(0, 1fr); padding-block: 20px; border-top: 1.5px solid var(--rule); }
@@ -180,6 +180,7 @@ h2 {
 .becomes { display: flex; align-items: center; gap: 12px; margin: 14px 0; color: var(--ink-soft); font-size: .9375rem; }
 .becomes::before { content: ""; width: 2px; height: 32px; background: var(--rule); margin-left: 22px; }
 .table-scroll {
+  position: relative; /* containing block, so KaTeX's absolute MathML spans get clipped too */
   overflow-x: auto; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth; scrollbar-width: thin; scrollbar-color: var(--rule) transparent;
   padding-bottom: 6px;
@@ -334,11 +335,6 @@ mark.bad { background: #FDECE7; color: #B4472B; }
 .extras { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin-top: 32px; color: var(--ink-soft); font-size: 1rem; }
 .extras b { display: block; color: var(--ink); font-weight: 700; }
 
-/* under the hood */
-.stack { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: clamp(24px, 5vw, 72px); margin-top: clamp(32px, 5vw, 56px); }
-.stack div { display: grid; grid-template-columns: minmax(0, 13rem) minmax(0, 1fr); gap: 16px; padding-block: 14px; border-top: 1px solid var(--rule); }
-.stack dt { font-weight: 700; }
-.stack dd { margin: 0; color: var(--ink-soft); }
 
 /* waste demo */
 .waste-grid { display: grid; grid-template-columns: minmax(0, 22rem) 1fr; gap: clamp(32px, 5vw, 72px); margin-top: clamp(40px, 6vw, 64px); }
@@ -397,6 +393,16 @@ mark.bad { background: #FDECE7; color: #B4472B; }
 .ai-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: var(--sky); color: #fff; font-size: .75rem; font-weight: 700; border-radius: 999px; margin-bottom: 12px; }
 .ai-badge.green { background: var(--moss); }
 .ai-crop-box { border: 2px dashed var(--sky); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--sky) 5%, transparent); margin-bottom: 14px; position: relative; }
+.sched-title { font-weight: 700; font-size: .8125rem; letter-spacing: .02em; color: var(--ink); margin: 2px 0 8px; }
+table.sched { min-width: 0; width: 100%; font-size: .8125rem; border: 1px solid var(--steel); background: var(--paper); }
+table.sched th, table.sched td { border: 1px solid var(--rule); padding: 6px 8px; text-align: left; vertical-align: top; white-space: normal; }
+table.sched thead th { font-size: .6875rem; font-weight: 600; color: var(--ink-soft); background: var(--fill); }
+table.sched tbody th { font-weight: 700; white-space: nowrap; color: var(--ink); font-size: .8125rem; }
+table.sched td:nth-child(2) { white-space: nowrap; }
+table.sched td.det span { display: block; }
+table.sched td.det i { font-style: normal; color: var(--ink-soft); }
+table.sched tr.hit th, table.sched tr.hit td { background: var(--tint); }
+table.sched tr.hit th { color: var(--accent-ink, #006B18); }
 .ai-crop-tag { position: absolute; top: -11px; left: 14px; background: var(--sky); color: #fff; font-size: .75rem; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
 .ai-pipeline { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-top: 32px; }
 .ai-pipe-step { border: 1px solid var(--rule); border-radius: 8px; background: var(--paper); padding: 14px; }
@@ -473,7 +479,6 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
   .how, .waste-grid, .bb, .ai-panel, .roi-card { grid-template-columns: minmax(0, 1fr); }
   .ai-pipeline { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .solvers { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .stack { grid-template-columns: minmax(0, 1fr); }
   .specimen { position: static; }
   .nav ul { display: none; }
 }
@@ -496,7 +501,6 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
   .bb-draw { grid-template-columns: minmax(0, 1fr); }
   .roi-stat-grid { grid-template-columns: 1fr; }
   .days i { padding: 8px 4px 6px; text-align: center; }
-  .stack div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
   .labels small { display: none; }
   .nav-cta .btn-link { display: none; }
 }
@@ -715,7 +719,7 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
         <div class="ai-pipe-step">
           <div class="ai-pipe-num">01</div>
           <h4>Multi-DPI Ingestion</h4>
-          <p>Scanned &amp; vector PDFs rasterized at up to 700 DPI so superscript bar tags and fractions remain crisp. CAD DWG/DXF files parsed natively via LibreDWG.</p>
+          <p>Scanned &amp; vector PDFs rasterized at up to 700 DPI so superscript bar tags and fractions remain crisp. DWG and DXF files are read natively.</p>
         </div>
         <div class="ai-pipe-step">
           <div class="ai-pipe-num">02</div>
@@ -725,7 +729,7 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
         <div class="ai-pipe-step">
           <div class="ai-pipe-num">03</div>
           <h4>Chain-of-Thought Vision</h4>
-          <p>Vision language models read bar marks, diameters ($\Phi$), spans, and spacing with bounding-box zoom-ins to verify uncertain values.</p>
+          <p>Vision AI reads bar marks, diameters ($\Phi$), spans, and spacing with bounding-box zoom-ins to verify uncertain values.</p>
         </div>
         <div class="ai-pipe-step">
           <div class="ai-pipe-num">04</div>
@@ -734,7 +738,7 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
         </div>
       </div>
 
-      <p class="cad">Native CAD ingestion: DWG and DXF files parse CAD text and line entities directly with zero vision distortion. Autodesk Revit (RVT) models stream via Autodesk Platform Services (APS).</p>
+      <p class="cad">Native CAD ingestion: DWG and DXF files parse CAD text and line entities directly with zero vision distortion. Revit (RVT) models are supported too.</p>
     </div>
   </section>
 
@@ -910,20 +914,6 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
       <div class="formats" aria-label="Accepted files">
         <span>Accepts</span><b>DWG</b><b>DXF</b><b>PDF</b><b>RVT</b><b>Excel</b>
       </div>
-    </div>
-  </section>
-
-  <section class="band" id="stack">
-    <div class="wrap">
-      <h2>Under the hood</h2>
-      <dl class="stack">
-        <div><dt>Web app</dt><dd>Next.js and Material UI, for engineers in the office and on site.</dd></div>
-        <div><dt>API</dt><dd>Feathers.js and MongoDB, with projects organised as block and floor.</dd></div>
-        <div><dt>Drawing extraction</dt><dd>Vision language models, layout-specific prompts and a PDF text layer where one exists.</dd></div>
-        <div><dt>CAD and BIM</dt><dd>LibreDWG for DWG files, Autodesk Platform Services for Revit.</dd></div>
-        <div><dt>Background jobs</dt><dd>BullMQ queues on Redis, so long parses never block an upload.</dd></div>
-        <div><dt>Optimiser</dt><dd>In-house cutting-stock solvers, run in a worker-thread pool.</dd></div>
-      </dl>
     </div>
   </section>
 
@@ -1213,13 +1203,34 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
   const elBody = document.getElementById("aiTableBody");
   const elCode = document.getElementById("aiCodeNote");
 
+  // Turn the "drawing" lines (Mark: size | Label: value | …) into a schedule table; the first member is the detected one.
+  function simTable(html) {
+    const fmtv = v => v.replace(/(\d)\s*x\s*(?=\d)/g, "$1 × ").replace(/Φ\s*@\s*/g, "Φ @ ");
+    const lines = html.split(/<br\s*\/?>/i).map(l => l.replace(/<[^>]+>/g, "").trim()).filter(Boolean);
+    const title = lines.shift() || "";
+    const rows = lines.map((line, i) => {
+      const parts = line.split("|").map(x => x.trim());
+      const head = parts.shift(), c = head.indexOf(":");
+      let mark = head.slice(0, c).trim(), size = head.slice(c + 1).trim();
+      if (size.includes(":")) {                       // "S1 (Two-way, 150 thk): Short: 10Φ@150"
+        parts.unshift(size);
+        const m = mark.match(/^(.*?)\s*\((.*)\)$/); size = m ? m[2] : ""; mark = m ? m[1] : mark;
+      }
+      const det = parts.map(p => { const k = p.indexOf(":"); return k < 0 ? `<span>${fmtv(p)}</span>`
+        : `<span><i>${p.slice(0, k).trim()}</i> ${fmtv(p.slice(k + 1).trim())}</span>`; }).join("");
+      return `<tr${i === 0 ? ' class="hit"' : ""}><th scope="row">${mark}</th><td>${fmtv(size)}</td><td class="det">${det}</td></tr>`;
+    }).join("");
+    return `<div class="sched-title">${title}</div><div class="table-scroll"><table class="sched">
+      <thead><tr><th>Mark</th><th>Size</th><th>Reinforcement</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  }
+
   function switchAI(type) {
     const data = AI_DATA[type];
     if (!data) return;
     elBadge.textContent = data.badge;
     elTag.textContent = data.tag;
     elDesc.innerHTML = data.desc;
-    elSim.innerHTML = data.simHtml;
+    elSim.innerHTML = simTable(data.simHtml);
     elCode.innerHTML = data.code;
 
     elBody.innerHTML = data.rows.map(r => `<tr>
