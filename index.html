@@ -240,6 +240,9 @@ tfoot td { font-weight: 700; border-bottom: 0; }
 .sv-st { fill: none; stroke: var(--moss); stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }
 .sv-thin { stroke: var(--ink); stroke-width: 1.2; }
 .sv-dist { stroke: var(--steel); stroke-width: 1; }
+.sv-faint { stroke: var(--steel); stroke-width: 1; opacity: .35; }
+.sv-t.halo { paint-order: stroke; stroke: var(--fill); stroke-width: 4px; stroke-linejoin: round; }
+.sv-beam { fill: var(--rule); stroke: var(--steel); stroke-width: 1.2; }
 .sv-lap { fill: none; stroke: var(--moss); stroke-width: 5; stroke-linecap: round; }
 .sv-dim { stroke: var(--steel); stroke-width: 1; fill: none; }
 .sv-t { fill: var(--ink-soft); font: 500 12px "Plus Jakarta Sans", system-ui, sans-serif; }
@@ -597,7 +600,7 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
             </div>
           </div>
           <p class="bb-note" id="bbNote" aria-live="polite"></p>
-          <p class="fine">Simplified textbook formulas for illustration: beam bars run to the far face of each support and bend so the run plus the leg makes up the development length, 135° stirrup hooks of 10d, bend deductions of 2d at 90° and 3d at 135°. In BBSteel every shape's formula lives in your shape library, and project rules such as cover, lap and development length apply to every bar.</p>
+          <p class="fine">Simplified textbook formulas for illustration: beam bars run to the far face of each support and bend so the run plus the leg makes up the development length, the column bar is a ground-floor starter with its foot in the footing and a lap above the floor, 135° stirrup hooks of 10d, bend deductions of 2d at 90° and 3d at 135°. In BBSteel every shape's formula lives in your shape library, and project rules such as cover, lap and development length apply to every bar.</p>
         </div>
       </div>
     </div>
@@ -1233,27 +1236,89 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
     const yt = s.y + (v.c + v.ds + v.dt / 2) * s.k, yb = s.y + s.h - (v.c + v.ds + v.db / 2) * s.k;
     return s.svg + spread(v.nt, ...xs(v.dt)).map(x => dot(x, yt, v.dt)).join("") + spread(v.nb, ...xs(v.db)).map(x => dot(x, yb, v.db)).join("");
   };
-  const columnSection = v => {
-    const s = rectSection(v.b, v.D, v.c, v.dt, ["b", "D"]);
-    const off = (v.c + v.dt + v.d / 2) * s.k, xl = s.x + off, xr = s.x + s.w - off, yt = s.y + off, yb = s.y + s.h - off;
-    const pts = [[xl, yt], [xr, yt], [xr, yb], [xl, yb]];
-    const sides = { L: [[xl, yt], [xl, yb]], R: [[xr, yt], [xr, yb]], T: [[xl, yt], [xr, yt]], B: [[xl, yb], [xr, yb]] };
+  // Main bars in plan: 4 corners, extra bars shared long, long, short, short.
+  const columnBars = v => {
     const order = v.D >= v.b ? ["L", "R", "T", "B"] : ["T", "B", "L", "R"], cnt = { L: 0, R: 0, T: 0, B: 0 };
     for (let i = 0; i < Math.max(0, v.n - 4); i++) cnt[order[i % 4]]++;
+    return { order, cnt };
+  };
+  const columnSectionAt = (v, X, Y, Wm, Hm) => {
+    const k = Math.min(Wm / v.b, Hm / v.D), w = v.b * k, h = v.D * k, c = v.c * k;
+    const off = (v.c + v.dt + v.d / 2) * k, xl = X + off, xr = X + w - off, yt = Y + off, yb = Y + h - off;
+    const pts = [[xl, yt], [xr, yt], [xr, yb], [xl, yb]];
+    const sides = { L: [[xl, yt], [xl, yb]], R: [[xr, yt], [xr, yb]], T: [[xl, yt], [xr, yt]], B: [[xl, yb], [xr, yb]] };
+    const { order, cnt } = columnBars(v);
     for (const sd of order) {
       const [[ax, ay], [bx, by]] = sides[sd];
       for (let j = 1; j <= cnt[sd]; j++) { const f = j / (cnt[sd] + 1); pts.push([ax + (bx - ax) * f, ay + (by - ay) * f]); }
     }
-    return s.svg + pts.map(([cx, cy]) => `<circle class="sv-bar" cx="${cx}" cy="${cy}" r="${Math.max(3, v.d * s.k / 2)}"/>`).join("");
+    return { w, h, svg: `<rect class="sv-con" x="${X}" y="${Y}" width="${w}" height="${h}"/>
+      <rect class="sv-st" x="${X + c}" y="${Y + c}" width="${w - 2 * c}" height="${h - 2 * c}" rx="2" style="stroke-width:1.6"/>`
+      + pts.map(([cx, cy]) => `<circle class="sv-bar" cx="${cx}" cy="${cy}" r="${Math.max(2.2, v.d * k / 2)}"/>`).join("") };
   };
+  // Front view of a ground-floor column: footing, starter bars with a foot, ties, slab, lap above the floor.
+  const columnElevation = v => {
+    const { cnt } = columnBars(v), nf = 2 + cnt.T;            // bars seen on the b face
+    const lap = v.lap * v.d, xL = 44, xR = 116, colH = 200;
+    const lapPx = Math.max(22, Math.min(60, colH * lap / v.H));
+    const yTop = 18, yS = yTop + lapPx, slab = 14, yF = yS + colH, ftH = 46, yFb = yF + ftH, mid = (yS + yF) / 2;
+    const ties = spread(Math.min(Math.floor(v.H / v.s) + 1, 40), yS + slab + 5, yF - 5)
+      .map(y => `<line class="sv-st" x1="${xL + 5}" y1="${y}" x2="${xR - 5}" y2="${y}" style="stroke-width:1.4"/>`).join("");
+    const rods = spread(nf, xL + 10, xR - 10).map((x, i) => {
+      const dir = i < nf / 2 ? -1 : 1;
+      return `<path class="sv-rod" style="stroke-width:2.2" d="M${x} ${yTop} L${x} ${yFb - 7} L${x + dir * 26} ${yFb - 7}"/>`
+        + `<line class="sv-lap" style="stroke-width:3.4" x1="${x}" y1="${yTop}" x2="${x}" y2="${yS}"/>`;
+    }).join("");
+    const sec = columnSectionAt(v, 182, yF - 66, 56, 84);
+    return `<rect class="sv-stub" x="${xL}" y="${yTop - 6}" width="${xR - xL}" height="${yS - yTop + 6}"/>
+      <rect class="sv-con" x="14" y="${yS}" width="136" height="${slab}"/>
+      <rect class="sv-con" x="${xL}" y="${yS + slab}" width="${xR - xL}" height="${yF - yS - slab}"/>
+      <rect class="sv-con" x="10" y="${yF}" width="140" height="${ftH}"/>
+      ${ties}${rods}
+      <line class="sv-dim" style="stroke-dasharray:4 3" x1="${xL - 12}" y1="${mid}" x2="${xR + 6}" y2="${mid}"/>
+      ${t(xL - 16, mid + 4, "A", "k", 'text-anchor="end"')}${t(xR + 8, mid + 4, "A", "k")}
+      ${tick(124, yS, 144, yS)}${tick(124, yF, 144, yF)}${arrow(134, yS, 134, yF)}
+      <text class="sv-dt" x="142" y="${mid - 22}">H</text><text class="sv-dv" x="142" y="${mid - 6}">${fmt(v.H)}</text>
+      ${tick(124, yTop, 144, yTop)}${arrow(134, yTop, 134, yS)}${t(142, (yTop + yS) / 2 + 4, "lap " + fmt(lap), "g")}
+      ${t(80, yFb + 18, "footing", "", 'text-anchor="middle"')}
+      ${sec.svg}${t(182 + sec.w / 2, yF - 74, "A–A", "k", 'text-anchor="middle"')}`;
+  };
+  // Starter bar from the shape library: L1 foot in the footing, L2 up through the footing, L3 floor height + lap.
+  const columnBar = (l1, l2, l3, lap) => {
+    const x = 128, yT = 26, yJ = 196, yB = 238, xE = 220;
+    const lapPx = Math.max(16, Math.min(120, (yJ - yT) * lap / l3));
+    const side = (ya, yb, name, val) => {
+      const m = (ya + yb) / 2;
+      return tick(x - 8, ya, x - 30, ya) + tick(x - 8, yb, x - 30, yb) + arrow(x - 19, ya, x - 19, yb)
+        + `<text class="sv-dt" x="${x - 34}" y="${m - 2}" text-anchor="end">${name}</text>`
+        + `<text class="sv-dv" x="${x - 34}" y="${m + 14}" text-anchor="end">${fmt(val)}</text>`;
+    };
+    return `<svg viewBox="0 0 300 ${yB + 52}" aria-hidden="true">
+      ${side(yT, yJ, "L3", l3)}${side(yJ, yB, "L2", l2)}
+      ${tick(x, yB + 8, x, yB + 30)}${tick(xE, yB + 8, xE, yB + 30)}${arrow(x, yB + 19, xE, yB + 19)}${dimLabel((x + xE) / 2, yB + 44, "L1", l1)}
+      <path class="sv-rod" d="M${x} ${yT} L${x} ${yB} L${xE} ${yB}"/>
+      <line class="sv-lap" x1="${x}" y1="${yT}" x2="${x}" y2="${yT + lapPx}"/>
+      ${t(x + 12, yT + lapPx / 2 + 4, "lap " + fmt(lap), "g")}
+      ${t(x + 12, yJ + 4, "top of footing")}
+    </svg>`;
+  };
+  // Slab plan the way drawings show it: support beams around, a few faint bars, one typical bar each way with its call-out.
   const slabPlan = v => {
-    const k = Math.min(190 / v.Ly, 200 / v.Lx), w = v.Ly * k, h = v.Lx * k, x = (230 - w) / 2, y = 16;
-    const nm = Math.min(Math.floor(v.Ly / v.sm) + 1, 45), nd = Math.min(Math.floor(v.Lx / v.sd) + 1, 45);
-    const mains = spread(nm, x + 5, x + w - 5).map(px => `<line class="sv-thin" x1="${px}" y1="${y + 4}" x2="${px}" y2="${y + h - 4}"/>`).join("");
-    const dists = spread(nd, y + 5, y + h - 5).map(py => `<line class="sv-dist" x1="${x + 4}" y1="${py}" x2="${x + w - 4}" y2="${py}"/>`).join("");
-    return `<rect class="sv-con" x="${x}" y="${y}" width="${w}" height="${h}"/>${dists}${mains}
-      ${t(x + w / 2, y + h + 18, "Ly = " + fmt(v.Ly), "", 'text-anchor="middle"')}
-      ${t(x + w + 8, y + h / 2 + 4, "Lx = " + fmt(v.Lx))}`;
+    const k = Math.min(176 / v.Ly, 168 / v.Lx), w = v.Ly * k, h = v.Lx * k, band = 10, x = 18 + band, y = 14 + band;
+    const nm = Math.floor(v.Ly / v.sm) + 1, nd = Math.floor(v.Lx / v.sd) + 1;
+    const faintV = spread(Math.min(nm, 7), x + 8, x + w - 8).map(px => `<line class="sv-faint" x1="${px}" y1="${y + 3}" x2="${px}" y2="${y + h - 3}"/>`).join("");
+    const faintH = spread(Math.min(nd, 6), y + 8, y + h - 8).map(py => `<line class="sv-faint" x1="${x + 3}" y1="${py}" x2="${x + w - 3}" y2="${py}"/>`).join("");
+    const xm = x + w * .64, yd = y + h * .3;
+    return `<rect class="sv-beam" x="${x - band}" y="${y - band}" width="${w + 2 * band}" height="${h + 2 * band}" rx="2"/>
+      <rect class="sv-con" x="${x}" y="${y}" width="${w}" height="${h}"/>${faintV}${faintH}
+      <line class="sv-rod" style="stroke:var(--steel);stroke-width:2.4" x1="${x - band + 3}" y1="${yd}" x2="${x + w + band - 3}" y2="${yd}"/>
+      <line class="sv-rod" style="stroke-width:2.8" x1="${xm}" y1="${y - band + 3}" x2="${xm}" y2="${y + h + band - 3}"/>
+      <text class="sv-t halo k" x="${x + 8}" y="${yd - 8}">D  ${v.dd} Φ @ ${fmt(v.sd)}</text><text class="sv-t halo" x="${x + 8}" y="${yd + 17}">${nd} nos</text>
+      <text class="sv-t halo k" x="${xm + 7}" y="${y + h - 26}">M  ${v.dm} Φ @ ${fmt(v.sm)}</text><text class="sv-t halo" x="${xm + 7}" y="${y + h - 10}">${nm} nos</text>
+      ${tick(x, y + h + band + 6, x, y + h + band + 26)}${tick(x + w, y + h + band + 6, x + w, y + h + band + 26)}${arrow(x, y + h + band + 16, x + w, y + h + band + 16)}
+      ${dimLabel(x + w / 2, y + h + band + 40, "Ly", v.Ly)}
+      ${tick(x + w + band + 4, y, x + w + band + 24, y)}${tick(x + w + band + 4, y + h, x + w + band + 24, y + h)}${arrow(x + w + band + 14, y, x + w + band + 14, y + h)}
+      <text class="sv-dt" x="${x + w + band + 20}" y="${y + h / 2 - 2}">Lx</text><text class="sv-dv" x="${x + w + band + 20}" y="${y + h / 2 + 14}">${fmt(v.Lx)}</text>`;
   };
   const footingSection = v => {
     const k = Math.min(200 / v.L, 150 / v.D), w = v.L * k, h = v.D * k, x = (230 - w) / 2, y = 56;
@@ -1292,19 +1357,22 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
       },
     },
     column: {
-      view: "Cross-section",
+      view: "Front view",
       groups: [
         ["Size", [["H", "Floor height", 3000, "mm"], ["b", "Width", 230, "mm"], ["D", "Depth", 450, "mm"]]],
+        ["Footing", [["DF", "Footing depth", 450, "mm"], ["L1", "Bend into footing", 300, "mm"]]],
         ["Bars", [["n", "Main bars", 8, "nos"], ["d", "Main bar dia", 16, "dia"], ["dt", "Tie dia", 8, "dia"], ["s", "Tie spacing", 150, "mm"]]],
-        ["Project rules", [["c", "Clear cover", 40, "mm"], ["lap", "Lap length", 50, "× d"]]],
+        ["Project rules", [["c", "Clear cover", 40, "mm"], ["cf", "Footing cover", 50, "mm"], ["lap", "Lap length", 50, "× d"]]],
       ],
       calc: v => {
         const a = v.b - 2 * v.c - v.dt, h = v.D - 2 * v.c - v.dt;
         if (a <= 0 || h <= 0) return "Cover is too large for this section.";
         if (v.n < 4) return "A column needs at least 4 main bars.";
-        const main = v.H + v.lap * v.d;
-        return { view: columnSection(v), rows: [
-          { mark: "M", bar: "Main bar", dia: v.d, no: v.n, cl: main, f: `H + ${v.lap}d lap`, shape: straight(main, v.lap * v.d) },
+        if (v.DF <= v.cf) return "Footing depth must be more than the footing cover.";
+        // L1 foot in the footing, L2 = footing depth less cover, L3 = floor height + lap; one 90° bend.
+        const l2 = v.DF - v.cf, l3 = v.H + v.lap * v.d;
+        return { view: columnElevation(v), vb: "0 0 260 350", rows: [
+          { mark: "M", bar: "Main bar, from footing", dia: v.d, no: v.n, cl: v.L1 + l2 + l3 - 2 * v.d, f: "L1 + L2 + L3 − 2d", shape: columnBar(v.L1, l2, l3, v.lap * v.d) },
           { mark: "R", bar: "Tie", dia: v.dt, no: Math.floor(v.H / v.s) + 1, cl: 2 * (a + h) + 8 * v.dt, f: "2(a + h) + 2×10d − 3×2d − 2×3d", shape: stirrup(a, h) },
         ] };
       },
@@ -1374,6 +1442,7 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
     if (typeof r === "string") { note.textContent = r; return; }
     note.textContent = "";
     cap.textContent = EL[cur].view;
+    view.setAttribute("viewBox", r.vb || "0 0 260 280");
     view.innerHTML = r.view;
     shapes.innerHTML = r.rows.map(x => `<figure class="shape"><figcaption>${x.mark}: ${x.bar}</figcaption>${x.shape}</figure>`).join("");
     let kg = 0;
