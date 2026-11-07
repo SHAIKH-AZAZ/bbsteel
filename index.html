@@ -25,6 +25,8 @@
   --steel: #7C8FAC;      /* grey 400 */
   --on-moss: #FFFFFF;
   --shadow: 0 1px 2px rgba(42,53,71,.06), 0 8px 24px rgba(42,53,71,.06);
+  --fill: #F2F6FA;
+  --dim: #2563EB;
 }
 * { box-sizing: border-box; margin: 0; }
 html { -webkit-text-size-adjust: 100%; }
@@ -177,6 +179,51 @@ tfoot td { font-weight: 700; border-bottom: 0; }
 .pillars h3 { font-weight: 700; font-size: clamp(1.3rem, 2vw, 1.6rem); line-height: 1.2; margin-bottom: 10px; }
 .pillars p { color: var(--ink-soft); }
 
+/* BBS builder */
+.tabs { display: flex; gap: 4px; margin-top: clamp(32px, 5vw, 48px); border-bottom: 1px solid var(--rule); overflow-x: auto; }
+.tabs button { font: inherit; font-weight: 600; padding: 12px 18px; border: 0; background: none; color: var(--ink-soft); border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; white-space: nowrap; }
+.tabs button:hover { color: var(--ink); }
+.tabs button[aria-selected="true"] { color: var(--moss); border-bottom-color: var(--moss); }
+.bb { display: grid; grid-template-columns: minmax(0, 21rem) minmax(0, 1fr); gap: clamp(24px, 4vw, 48px); margin-top: 28px; align-items: start; }
+.bb-form fieldset { border: 0; padding: 0; margin: 0 0 18px; min-width: 0; }
+.bb-form legend { font-weight: 700; font-size: .875rem; margin-bottom: 6px; padding: 0; }
+.field { display: grid; grid-template-columns: minmax(0, 1fr) 8rem; align-items: center; gap: 10px; padding: 4px 0; }
+.field label { font-size: .9375rem; color: var(--ink-soft); }
+.field .in { display: flex; align-items: center; border: 1px solid var(--rule); border-radius: 8px; background: var(--paper); transition: border-color .15s, box-shadow .15s; }
+.field input, .field select { width: 100%; min-width: 0; border: 0; background: none; font: inherit; font-weight: 600; color: var(--ink); padding: 7px 8px 7px 10px; text-align: right; }
+.field input:focus, .field select:focus { outline: none; }
+.field .u { font-size: .8125rem; color: var(--ink-soft); padding-right: 10px; white-space: nowrap; }
+.field .in:focus-within, .field .in.typing { border-color: var(--moss); box-shadow: 0 0 0 3px var(--tint); }
+.bb-draw { display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr); gap: 14px; align-items: start; }
+.bb-fig, .shape { margin: 0; border: 1px solid var(--rule); border-radius: 12px; padding: 12px; background: var(--paper); }
+.bb-fig figcaption, .shape figcaption { font-size: .8125rem; color: var(--ink-soft); margin-bottom: 6px; }
+.bb-shapes { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.bb svg { width: 100%; height: auto; display: block; overflow: visible; }
+.bb-fig svg { max-width: 260px; margin-inline: auto; }
+.sv-con { fill: var(--fill); stroke: var(--steel); stroke-width: 1.5; }
+.sv-stub { fill: none; stroke: var(--steel); stroke-width: 1.2; stroke-dasharray: 5 4; }
+.sv-bar { fill: var(--ink); }
+.sv-rod { fill: none; stroke: var(--ink); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.sv-st { fill: none; stroke: var(--moss); stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }
+.sv-thin { stroke: var(--ink); stroke-width: 1.2; }
+.sv-dist { stroke: var(--steel); stroke-width: 1; }
+.sv-lap { fill: none; stroke: var(--moss); stroke-width: 5; stroke-linecap: round; }
+.sv-dim { stroke: var(--steel); stroke-width: 1; fill: none; }
+.sv-t { fill: var(--ink-soft); font: 500 12px "Plus Jakarta Sans", system-ui, sans-serif; }
+.sv-t.k { fill: var(--ink); font-weight: 700; }
+.sv-t.g { fill: var(--moss); font-weight: 700; }
+.sv-dl { stroke: var(--dim); stroke-width: 1.6; }
+.sv-dh { fill: var(--dim); }
+.sv-dt { fill: var(--dim); font: 700 15px "Plus Jakarta Sans", system-ui, sans-serif; }
+.sv-dv { fill: var(--ink); font: 600 12px "Plus Jakarta Sans", system-ui, sans-serif; }
+.bb-tablebox { margin-top: 14px; border: 1px solid var(--rule); border-radius: 12px; padding: 6px 14px; background: var(--paper); }
+.bb-table { min-width: 620px; }
+.bb-table th:nth-child(-n+2), .bb-table td:nth-child(-n+2), .bb-table th:nth-child(6), .bb-table td:nth-child(6) { text-align: left; }
+.bb-table th:last-child, .bb-table td:last-child { text-align: right; }
+.bb-table td:nth-child(6) { color: var(--ink-soft); white-space: normal; min-width: 11rem; }
+.bb-table td:first-child { font-weight: 700; color: var(--moss); }
+.bb-note { min-height: 1.4em; margin-top: 10px; font-size: .875rem; color: var(--scrap); }
+
 /* problem: by hand vs BBSteel */
 .vs { margin-top: clamp(40px, 6vw, 64px); border-top: 1px solid var(--rule); }
 .vs-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(20px, 4vw, 56px); padding-block: 18px; border-bottom: 1px solid var(--rule); }
@@ -246,6 +293,55 @@ tfoot td { font-weight: 700; border-bottom: 0; }
 .key i { display: inline-block; width: 22px; height: 10px; border-radius: 5px; vertical-align: middle; margin-right: 6px; }
 .fine { margin-top: 20px; font-size: .875rem; color: var(--ink-soft); max-width: 44rem; }
 
+/* hero ribbon */
+.hero-ribbon { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+.ribbon-pill { display: inline-flex; align-items: center; gap: 8px; padding: 7px 15px; border-radius: 999px; background: var(--paper); border: 1px solid var(--rule); font-size: .875rem; font-weight: 600; color: var(--ink); box-shadow: 0 1px 3px rgba(42,53,71,.05); }
+.ribbon-pill strong { color: var(--moss); }
+
+/* AI tabs & inspection showcase */
+.ai-tabs { display: flex; gap: 6px; margin-top: 32px; margin-bottom: 24px; overflow-x: auto; border-bottom: 1px solid var(--rule); padding-bottom: 2px; }
+.ai-tabs button { font: inherit; font-weight: 600; font-size: .9375rem; padding: 10px 18px; border: 0; background: none; color: var(--ink-soft); border-bottom: 2px solid transparent; margin-bottom: -3px; cursor: pointer; white-space: nowrap; border-radius: 6px 6px 0 0; }
+.ai-tabs button:hover { color: var(--ink); }
+.ai-tabs button[aria-selected="true"] { color: var(--moss); border-bottom-color: var(--moss); background: var(--tint); }
+.ai-panel { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 44px); align-items: start; }
+.ai-crop-view { border: 1px solid var(--rule); border-radius: 12px; background: var(--paper); padding: 22px; box-shadow: var(--shadow); position: relative; }
+.ai-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: var(--sky); color: #fff; font-size: .75rem; font-weight: 700; border-radius: 999px; margin-bottom: 12px; }
+.ai-badge.green { background: var(--moss); }
+.ai-crop-box { border: 2px dashed var(--sky); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--sky) 5%, transparent); margin-bottom: 14px; position: relative; }
+.ai-crop-tag { position: absolute; top: -11px; left: 14px; background: var(--sky); color: #fff; font-size: .75rem; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
+.ai-pipeline { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-top: 32px; }
+.ai-pipe-step { border: 1px solid var(--rule); border-radius: 8px; background: var(--paper); padding: 14px; }
+.ai-pipe-num { font-weight: 800; font-size: 1.1rem; color: var(--moss); margin-bottom: 4px; }
+.ai-pipe-step h4 { font-size: .9375rem; font-weight: 700; margin-bottom: 4px; }
+.ai-pipe-step p { font-size: .8125rem; color: var(--ink-soft); line-height: 1.4; }
+
+/* algorithm picker & ROI calculator */
+.algo-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+.algo-btn { padding: 8px 16px; border-radius: 8px; font: inherit; font-size: .875rem; font-weight: 600; border: 1.5px solid var(--rule); background: var(--paper); color: var(--ink); cursor: pointer; display: flex; align-items: center; gap: 6px; }
+.algo-btn:hover { background: var(--fill); }
+.algo-btn[aria-pressed="true"] { border-color: var(--moss); background: var(--tint); color: var(--moss); }
+.roi-card { margin-top: 36px; background: var(--paper); border: 1px solid var(--rule); border-radius: 12px; padding: clamp(20px, 3.5vw, 32px); box-shadow: var(--shadow); display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.4fr); gap: clamp(24px, 4vw, 48px); align-items: center; }
+.roi-card h3 { font-size: 1.35rem; font-weight: 700; margin-bottom: 8px; }
+.roi-inputs { display: grid; gap: 14px; margin-top: 16px; }
+.roi-field { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.roi-field label { font-size: .9375rem; color: var(--ink-soft); }
+.roi-field input { width: 7rem; padding: 6px 10px; border: 1px solid var(--rule); border-radius: 6px; font: inherit; font-weight: 700; text-align: right; background: var(--fill); }
+.roi-stat-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.roi-stat-box { padding: 16px; border-radius: 8px; background: var(--fill); border: 1px solid var(--rule); }
+.roi-stat-box.highlight { background: var(--tint); border-color: color-mix(in srgb, var(--moss) 35%, transparent); }
+.roi-stat-box small { display: block; font-size: .8125rem; color: var(--ink-soft); margin-bottom: 4px; }
+.roi-stat-box b { display: block; font-size: 1.6rem; font-weight: 800; color: var(--ink); line-height: 1.1; }
+.roi-stat-box.highlight b { color: var(--moss); }
+
+/* deliverables showcase */
+.deliverables-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; margin-top: clamp(36px, 5vw, 56px); }
+.deliv-card { background: var(--paper); border: 1px solid var(--rule); border-radius: 12px; padding: 22px; box-shadow: var(--shadow); display: flex; flex-direction: column; transition: transform .2s, border-color .2s; }
+.deliv-card:hover { border-color: var(--moss); transform: translateY(-2px); }
+.deliv-icon { width: 40px; height: 40px; border-radius: 8px; background: var(--tint); color: var(--moss); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 14px; font-size: 1.25rem; font-weight: 700; }
+.deliv-card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 8px; }
+.deliv-card p { font-size: .9375rem; color: var(--ink-soft); margin-bottom: 14px; flex-grow: 1; }
+.deliv-preview { background: var(--fill); border: 1px solid var(--rule); border-radius: 6px; padding: 10px; font-size: .8125rem; font-family: monospace; color: var(--ink); overflow-x: auto; line-height: 1.45; }
+
 /* coverage */
 .cover { margin-top: clamp(40px, 6vw, 64px); }
 .cover-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 24px; padding-block: 28px; border-top: 1px solid var(--rule); }
@@ -266,7 +362,8 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
 
 /* ---------- responsive ---------- */
 @media (max-width: 960px) {
-  .how, .waste-grid { grid-template-columns: minmax(0, 1fr); }
+  .how, .waste-grid, .bb, .ai-panel, .roi-card { grid-template-columns: minmax(0, 1fr); }
+  .ai-pipeline { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .solvers { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .stack { grid-template-columns: minmax(0, 1fr); }
   .specimen { position: static; }
@@ -280,8 +377,10 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
   .vs-head { display: none; }
   .vs-row > div::before { content: attr(data-l); display: block; font-size: .8125rem; font-weight: 600; color: var(--ink-soft); }
   .vs-row > div:last-child::before { color: var(--moss); }
-  .solvers, .extras, .pillars { grid-template-columns: minmax(0, 1fr); }
+  .solvers, .extras, .pillars, .ai-pipeline { grid-template-columns: minmax(0, 1fr); }
   .wk-row { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .bb-draw { grid-template-columns: minmax(0, 1fr); }
+  .roi-stat-grid { grid-template-columns: 1fr; }
   .days i { padding: 8px 4px 6px; text-align: center; }
   .stack div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
   .labels small { display: none; }
@@ -303,9 +402,11 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
   <nav aria-label="Primary">
     <ul>
       <li><a href="#vision">Why BBSteel</a></li>
-      <li><a href="#ai">AI extraction</a></li>
-      <li><a href="#waste">Optimiser</a></li>
-      <li><a href="#coverage">Coverage</a></li>
+      <li><a href="#problem">The Manual Problem</a></li>
+      <li><a href="#ai">AI Extraction</a></li>
+      <li><a href="#builder">BBS Engine</a></li>
+      <li><a href="#waste">Cutting Optimizer</a></li>
+      <li><a href="#deliverables">Deliverables</a></li>
     </ul>
   </nav>
   <div class="nav-cta">
@@ -320,11 +421,19 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
   <section class="wrap hero" id="top">
     <h1>Drawings in.<span class="l2">Schedule out.</span></h1>
     <div class="hero-foot">
-      <p>BBSteel automates bar bending schedules for RCC buildings. AI reads the reinforcement schedules straight off your drawings, a rod engine works out every bar, and our own cutting-stock optimiser plans how to cut them from stock with the least waste.</p>
+      <p>BBSteel eliminates the civil engineering bottleneck in RCC reinforcement detailing. Multi-modal AI reads structural drawings (DWG, DXF, scanned/vector PDF, RVT), our parametric rod-math engine calculates 100% code-compliant bar shapes with seismic detailing (IS 2502 / IS 13920 / BS 8666), and in-house 1D cutting-stock optimization slashes yard steel scrap from 12% to below 3%.</p>
       <div class="actions">
-        <a class="btn btn-solid" href="/register">Upload a drawing</a>
-        <a class="btn" href="#how">See how it works</a>
+        <a class="btn btn-solid" href="/register">Start free trial</a>
+        <a class="btn" href="#ai">Explore AI Takeoff</a>
+        <a class="btn" href="#waste">Test Cutting Optimizer</a>
       </div>
+    </div>
+
+    <div class="hero-ribbon">
+      <span class="ribbon-pill"><strong>⚡ 90% Faster</strong> BBS Takeoff (4 Days → 8 Mins)</span>
+      <span class="ribbon-pill"><strong>✂️ &lt; 3% Steel Scrap</strong> (Down from 12–14% yard waste)</span>
+      <span class="ribbon-pill"><strong>📐 100% Code Adherence</strong> (IS 2502 • IS 13920 • BS 8666)</span>
+      <span class="ribbon-pill"><strong>📁 Multi-Format Ingestion</strong> DWG • DXF • PDF • RVT • Excel</span>
     </div>
 
     <figure class="stock" aria-label="One 12 metre stock bar cut into three bars with a 1,040 mm offcut kept for reuse">
@@ -339,7 +448,7 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
         <div class="piece cut off" style="--w:1040;--d:1.95s"></div>
       </div>
       <div class="labels" aria-hidden="true">
-        <div style="--w:5180;--d:1.1s"><b>5,180</b><small>Beam B12, top bar</small></div>
+        <div style="--w:5180;--d:1.1s"><b>5,180</b><small>Beam B7, top bar</small></div>
         <div style="--w:3320;--d:1.45s"><b>3,320</b><small>Column C3, main bar</small></div>
         <div style="--w:2460;--d:1.8s"><b>2,460</b><small>Slab S2, main bar</small></div>
         <div class="lo" style="--w:1040;--d:2.4s"><b>1,040</b><small>Back to stock</small></div>
@@ -366,15 +475,16 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
 
   <section id="problem">
     <div class="wrap">
-      <h2>Bar bending schedules are still typed by hand</h2>
-      <p class="lede">A building has hundreds of members and every one becomes several rows of steel. Most of that work is reading, arithmetic and typing, and one wrong lap length repeats down the whole floor.</p>
+      <h2>The Civil Engineering BBS Bottleneck</h2>
+      <p class="lede">Every RCC project requires thousands of reinforcement bars cut and bent to exact geometry. The manual detailing workflow is slow, error-prone, violates seismic safety codes, and wastes tons of expensive steel.</p>
       <div class="vs">
-        <div class="vs-row vs-head" aria-hidden="true"><div>By hand</div><div>With BBSteel</div></div>
-        <div class="vs-row"><div data-l="By hand">Read every beam, column, slab and footing schedule on the sheet, one member at a time.</div><div data-l="With BBSteel">BBSteel reads the schedules from the PDF or CAD file and lists every member for you to check.</div></div>
-        <div class="vs-row"><div data-l="By hand">Sketch each bar shape and work out lap, development length, hooks and stirrup counts.</div><div data-l="With BBSteel">Your shape library and project rules compute every bar the same way, every time.</div></div>
-        <div class="vs-row"><div data-l="By hand">Type each row into a spreadsheet and add up weights per diameter.</div><div data-l="With BBSteel">The BBS Excel is generated with bar codes, cutting lengths and weight per diameter.</div></div>
-        <div class="vs-row"><div data-l="By hand">Redo the affected rows by hand when the drawing is revised.</div><div data-l="With BBSteel">Upload the revision and recalculate the floor.</div></div>
-        <div class="vs-row"><div data-l="By hand">Cut bars in the order they are listed and scrap what is left over.</div><div data-l="With BBSteel">The optimiser packs cuts into stock bars and keeps usable offcuts for the next floor.</div></div>
+        <div class="vs-row vs-head" aria-hidden="true"><div>Manual Detailing &amp; Yard Guesswork</div><div>BBSteel Autonomous Engine</div></div>
+        <div class="vs-row"><div data-l="By hand">Detailers spend 4–5 days per floor manually tracing member schedules, grid dimensions, and elevation callouts from CAD/PDFs.</div><div data-l="With BBSteel">Multi-format AI extracts beam schedules, column tables, slab spans, and footing schedules in seconds, presenting them for engineer sign-off.</div></div>
+        <div class="vs-row"><div data-l="By hand">Lap splices often placed in tension zones or inside beam-column joint cores, failing IS 13920 &amp; SP 34 seismic ductile detailing.</div><div data-l="With BBSteel">Automatic lap placement strictly in safe compression zones ($L/3$ or $L/4$), with staggered splices and $135^\circ$ hooks with $10d$ extensions.</div></div>
+        <div class="vs-row"><div data-l="By hand">Bend elongation ignored in manual spreadsheets ($-2d$ at $90^\circ$, $-3d$ at $135^\circ$), causing oversized rebar cages that violate concrete cover.</div><div data-l="With BBSteel">Exact parametric bend deductions applied to every bar mark, ensuring pre-bent steel fits reinforcement forms with design cover intact.</div></div>
+        <div class="vs-row"><div data-l="By hand">Typing errors and formula breaks across Excel sheets lead to procurement mismatches and steel shortages mid-pour.</div><div data-l="With BBSteel">Deterministic bar-math computes cutting lengths, piece counts, and exact diameter-wise tonnage (8–40 mm) into production-ready schedules.</div></div>
+        <div class="vs-row"><div data-l="By hand">When structural drawings undergo revision, engineers spend days recalculating affected elements and updating spreadsheets.</div><div data-l="With BBSteel">Re-upload the revision. Changed members are detected and the entire block recalculates in minutes in background queues.</div></div>
+        <div class="vs-row"><div data-l="By hand">Yard cutters cut bars sequentially per member, generating 12–15% scrap that ends up sold off as scrap metal at a huge loss.</div><div data-l="With BBSteel">Proprietary 1D cutting-stock optimization nests cuts across members, cutting scrap to &lt; 3% and inventorying offcuts $\ge 1\text{m}$ for upper floors.</div></div>
       </div>
     </div>
   </section>
@@ -406,11 +516,11 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
               <table>
                 <thead><tr><th>Sl no</th><th>Bar code</th><th>Dia (mm)</th><th>Total bars</th><th>Cutting length (mm)</th><th>Weight (kg)</th><th>Element</th></tr></thead>
                 <tbody>
-                  <tr><td>1</td><td>B12-T</td><td>16</td><td>2</td><td>5,180</td><td>16.37</td><td>B12</td></tr>
-                  <tr><td>2</td><td>B12-B</td><td>16</td><td>3</td><td>4,960</td><td>23.51</td><td>B12</td></tr>
-                  <tr><td>3</td><td>B12-ST</td><td>8</td><td>29</td><td>1,310</td><td>15.01</td><td>B12</td></tr>
+                  <tr><td>1</td><td>B12-T</td><td>16</td><td>2</td><td>5,640</td><td>17.82</td><td>B12</td></tr>
+                  <tr><td>2</td><td>B12-B</td><td>16</td><td>3</td><td>5,640</td><td>26.73</td><td>B12</td></tr>
+                  <tr><td>3</td><td>B12-ST</td><td>8</td><td>29</td><td>1,192</td><td>13.65</td><td>B12</td></tr>
                 </tbody>
-                <tfoot><tr><td colspan="5"></td><td>54.89</td><td>Total</td></tr></tfoot>
+                <tfoot><tr><td colspan="5"></td><td>58.21</td><td>Total</td></tr></tfoot>
               </table>
             </div>
           </div>
@@ -420,49 +530,97 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
     </div>
   </section>
 
-  <section id="ai">
+  <section id="builder">
     <div class="wrap">
-      <h2>AI that reads structural drawings</h2>
-      <p class="lede">Schedules come in dozens of layouts, from neat tables to bar marks scattered beside a section. BBSteel first works out which layout a sheet uses, then reads it with instructions written for that layout, and checks itself where it's unsure.</p>
-      <div class="how">
-        <ol class="steps">
-          <li><div><h3>Render</h3><p>Each PDF page is rendered at up to 700 DPI, so small bar marks stay legible.</p></div></li>
-          <li><div><h3>Recognise the layout</h3><p>A vision classifier matches the sheet to one of nearly 50 known schedule layouts across beams, columns, slabs and footings.</p></div></li>
-          <li><div><h3>Find the schedule</h3><p>The schedule region is cropped and sliced, so nothing is read at thumbnail size.</p></div></li>
-          <li><div><h3>Extract</h3><p>A vision model reads member marks, sizes, main bars and stirrups, and zooms back in to re-read anything it isn't sure of.</p></div></li>
-          <li><div><h3>Tidy up</h3><p>Grouped marks like C1, C2 are split into separate members, values are normalised and grouped by floor, ready for your review.</p></div></li>
-        </ol>
-        <div class="specimen">
-          <div class="drawing">
-            <div class="detect" aria-hidden="true"><span>Column schedule found</span></div>
-            <table>
-              <caption class="skip">Column schedule as drawn</caption>
-              <thead><tr><th>Mark</th><th>C1, C2</th><th>C3</th><th>C4</th></tr></thead>
-              <tbody>
-                <tr><td>Size</td><td>230 × 450</td><td>300 × 450</td><td>300 × 600</td></tr>
-                <tr><td>Main</td><td>8 – 16 Φ</td><td>8 – 20 Φ</td><td>12 – 20 Φ</td></tr>
-                <tr><td>Ties</td><td>8 Φ @ 150</td><td>8 Φ @ 150</td><td>8 Φ @ 100</td></tr>
-              </tbody>
-            </table>
+      <h2>Type the sizes, get the bars</h2>
+      <p class="lede">Enter a member the way it is written on the drawing. BBSteel draws every bar's shape, works out its cutting length from that shape's formula, and adds the rows to the schedule. Try changing any value.</p>
+      <div class="tabs" role="tablist" aria-label="Member type">
+        <button type="button" role="tab" id="tab-beam" aria-controls="bbPanel" aria-selected="true" data-el="beam">Beam</button>
+        <button type="button" role="tab" id="tab-column" aria-controls="bbPanel" aria-selected="false" tabindex="-1" data-el="column">Column</button>
+        <button type="button" role="tab" id="tab-slab" aria-controls="bbPanel" aria-selected="false" tabindex="-1" data-el="slab">Slab</button>
+        <button type="button" role="tab" id="tab-footing" aria-controls="bbPanel" aria-selected="false" tabindex="-1" data-el="footing">Footing</button>
+      </div>
+      <div class="bb" id="bbPanel" role="tabpanel" aria-labelledby="tab-beam">
+        <form class="bb-form" id="bbForm" autocomplete="off" novalidate></form>
+        <div class="bb-out">
+          <div class="bb-draw">
+            <figure class="bb-fig"><figcaption id="bbViewCap">Cross-section</figcaption><svg id="bbView" viewBox="0 0 260 280" role="img" aria-label="Member drawing"></svg></figure>
+            <div class="bb-shapes" id="bbShapes"></div>
           </div>
-          <div class="becomes">Extracted, one row per column</div>
-          <div class="sheet ai-out">
+          <div class="bb-tablebox">
             <div class="table-scroll">
-              <table>
-                <thead><tr><th>Element</th><th>Size (mm)</th><th>Main bars</th><th>Ties</th></tr></thead>
-                <tbody>
-                  <tr><td>C1</td><td>230 × 450</td><td>8 nos 16 Φ</td><td>8 Φ @ 150</td></tr>
-                  <tr><td>C2</td><td>230 × 450</td><td>8 nos 16 Φ</td><td>8 Φ @ 150</td></tr>
-                  <tr><td>C3</td><td>300 × 450</td><td>8 nos 20 Φ</td><td>8 Φ @ 150</td></tr>
-                  <tr><td>C4</td><td>300 × 600</td><td>12 nos 20 Φ</td><td>8 Φ @ 100</td></tr>
-                </tbody>
+              <table class="bb-table">
+                <thead><tr><th>Mark</th><th>Bar</th><th>Dia (mm)</th><th>Nos</th><th>Cutting length (mm)</th><th>Formula</th><th>Weight (kg)</th></tr></thead>
+                <tbody id="bbRows"></tbody>
+                <tfoot><tr><td colspan="6">Total</td><td id="bbTotal"></td></tr></tfoot>
               </table>
             </div>
           </div>
-          <p class="fine">Illustration of the extraction flow.</p>
+          <p class="bb-note" id="bbNote" aria-live="polite"></p>
+          <p class="fine">Simplified textbook formulas for illustration: beam bars run to the far face of each support and bend so the run plus the leg makes up the development length, 135° stirrup hooks of 10d, bend deductions of 2d at 90° and 3d at 135°. In BBSteel every shape's formula lives in your shape library, and project rules such as cover, lap and development length apply to every bar.</p>
         </div>
       </div>
-      <p class="cad">DWG and DXF files skip the vision step: text is read directly from the CAD entities. Revit models are read through Autodesk Platform Services.</p>
+    </div>
+  </section>
+
+  <section id="ai">
+    <div class="wrap">
+      <h2>Multi-Modal AI Built for Structural Drawings</h2>
+      <p class="lede">Structural drawings vary drastically across engineering consultancies. BBSteel features a proprietary 48+ pattern classification engine that identifies schedule types across beams, columns, slabs, and footings, extracts reinforcement text with chain-of-thought verification, and cross-checks structural geometry.</p>
+
+      <div class="ai-tabs" role="tablist" aria-label="Drawing extraction type">
+        <button type="button" role="tab" id="ai-tab-beam" aria-selected="true" data-ai="beam">Beams (14 Patterns)</button>
+        <button type="button" role="tab" id="ai-tab-col" aria-selected="false" data-ai="column">Columns (15 Patterns)</button>
+        <button type="button" role="tab" id="ai-tab-slab" aria-selected="false" data-ai="slab">Slabs (9 Patterns)</button>
+        <button type="button" role="tab" id="ai-tab-foot" aria-selected="false" data-ai="footing">Footings (10 Patterns)</button>
+      </div>
+
+      <div class="ai-panel" id="aiPanel" role="region" aria-live="polite">
+        <div class="ai-crop-view">
+          <div class="ai-badge" id="aiPatternBadge">Pattern #07: Continuous Beam Schedule • 99.4% Match</div>
+          <div class="ai-crop-box" id="aiCropBox">
+            <span class="ai-crop-tag" id="aiCropTag">Detected Drawing Region (700 DPI)</span>
+            <div id="aiDrawingSim"></div>
+          </div>
+          <p class="fine" id="aiDrawingDesc">Continuous framing schedule with multi-span stirrup zoning ($L/3$, mid, $L/3$) and curtailment.</p>
+        </div>
+
+        <div class="ai-crop-view">
+          <div class="ai-badge green">Normalized Entity Output for BBS Math</div>
+          <div class="table-scroll">
+            <table id="aiTableOut">
+              <thead><tr><th>Member</th><th>Section (mm)</th><th>Top Reinforcement</th><th>Bottom Reinforcement</th><th>Stirrups / Ties</th></tr></thead>
+              <tbody id="aiTableBody"></tbody>
+            </table>
+          </div>
+          <p class="fine" id="aiCodeNote" style="margin-top:12px;color:var(--moss);font-weight:600">✓ IS 13920 seismic ductile confinement verified. Laps staggered outside joints.</p>
+        </div>
+      </div>
+
+      <div class="ai-pipeline">
+        <div class="ai-pipe-step">
+          <div class="ai-pipe-num">01</div>
+          <h4>Multi-DPI Ingestion</h4>
+          <p>Scanned &amp; vector PDFs rasterized at up to 700 DPI so superscript bar tags and fractions remain crisp. CAD DWG/DXF files parsed natively via LibreDWG.</p>
+        </div>
+        <div class="ai-pipe-step">
+          <div class="ai-pipe-num">02</div>
+          <h4>48+ Layout Classifier</h4>
+          <p>Neural layout matching identifies drawing conventions (tabular, grid, callout blocks, or multi-story elevation matrices) before invoking prompt chains.</p>
+        </div>
+        <div class="ai-pipe-step">
+          <div class="ai-pipe-num">03</div>
+          <h4>Chain-of-Thought Vision</h4>
+          <p>Vision language models read bar marks, diameters ($\Phi$), spans, and spacing with bounding-box zoom-ins to verify uncertain values.</p>
+        </div>
+        <div class="ai-pipe-step">
+          <div class="ai-pipe-num">04</div>
+          <h4>Floor Reconciliation</h4>
+          <p>Grouped IDs like "C1 to C8" are split into individual members. Floor heights and column confinement zones reconcile automatically.</p>
+        </div>
+      </div>
+
+      <p class="cad">Native CAD ingestion: DWG and DXF files parse CAD text and line entities directly with zero vision distortion. Autodesk Revit (RVT) models stream via Autodesk Platform Services (APS).</p>
     </div>
   </section>
 
@@ -573,8 +731,8 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
 (() => {
   const cuts = [
     { len: 7400, qty: 2, what: "Beam B4 bottom" },
-    { len: 5180, qty: 4, what: "Beam B12 top" },
-    { len: 4960, qty: 6, what: "Beam B12 bottom" },
+    { len: 5180, qty: 4, what: "Beam B7 top" },
+    { len: 4960, qty: 6, what: "Beam B7 bottom" },
     { len: 3320, qty: 5, what: "Column C3 main" },
     { len: 2460, qty: 8, what: "Slab S2 main" },
     { len: 1850, qty: 6, what: "Footing F1 mat" },
@@ -656,6 +814,280 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
     draw(document.getElementById("planPacked"), packed(list));
   }
   render();
+})();
+</script>
+<script>
+(() => {
+  const UNIT_KG = { 8: 0.395, 10: 0.617, 12: 0.888, 16: 1.58, 20: 2.47, 25: 3.85, 32: 6.31 }; // bbs-api barUnitWeight.ts
+  const DIAS = Object.keys(UNIT_KG).map(Number);
+  const fmt = n => Math.round(n).toLocaleString("en-IN");
+  const t = (x, y, txt, cls = "", extra = "") => `<text class="sv-t ${cls}" x="${x}" y="${y}" ${extra}>${txt}</text>`;
+
+  /* ---------- bar shape drawings (blue L1 / L2 / L3 dimensions, like the shape library) ---------- */
+  const tick = (x1, y1, x2, y2) => `<line class="sv-dl" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;
+  const arrow = (x1, y1, x2, y2) => {
+    const n = Math.hypot(x2 - x1, y2 - y1) || 1, ux = (x2 - x1) / n, uy = (y2 - y1) / n, a = 7, w = 3.5;
+    const head = (x, y, dx, dy) => `<polygon class="sv-dh" points="${x},${y} ${x - dx * a - dy * w},${y - dy * a + dx * w} ${x - dx * a + dy * w},${y - dy * a - dx * w}"/>`;
+    return tick(x1, y1, x2, y2) + head(x2, y2, ux, uy) + head(x1, y1, -ux, -uy);
+  };
+  const dimLabel = (x, y, name, val, anchor = "middle") =>
+    `<text class="sv-dt" x="${x}" y="${y}" text-anchor="${anchor}">${name}<tspan class="sv-dv" dx="6">${fmt(val)}</tspan></text>`;
+
+  const straight = (len, lap) => {
+    const x1 = 30, x2 = 270, y = 56;
+    let svg = tick(x1, 22, x1, y - 8) + tick(x2, 22, x2, y - 8) + arrow(x1, 30, x2, 30) + dimLabel(150, 20, "L", len)
+      + `<line class="sv-rod" x1="${x1}" y1="${y}" x2="${x2}" y2="${y}"/>`;
+    if (lap) {
+      const lx = x2 - (x2 - x1) * Math.min(lap / len, .9);
+      svg += `<line class="sv-lap" x1="${lx}" y1="${y}" x2="${x2}" y2="${y}"/>${t(x2, y + 22, "lap " + fmt(lap), "g", 'text-anchor="end"')}`;
+    }
+    return `<svg viewBox="0 0 300 ${lap ? 86 : 70}" aria-hidden="true">${svg}</svg>`;
+  };
+
+  // Top bar: legs bent down (∩). Bottom bar and footing bar: legs bent up (U).
+  const uBar = (l1, l2, l3, legsDown) => {
+    if (!(l1 > 0) || !(l3 > 0)) return straight(l2);
+    const x1 = 72, x2 = 228, leg = 42;
+    const top = legsDown ? 50 : 14;
+    const yH = legsDown ? top : top + leg, yE = legsDown ? top + leg : top;
+    const yA = legsDown ? 30 : yH + 24, yL = legsDown ? 20 : yH + 46;
+    const y0 = Math.min(yH, yE), y1 = Math.max(yH, yE), mid = (y0 + y1) / 2;
+    const side = (x, dir, name, val) => {
+      const xa = x + dir * 18, anchor = dir < 0 ? "end" : "start";
+      return tick(x + dir * 8, y0, x + dir * 28, y0) + tick(x + dir * 8, y1, x + dir * 28, y1) + arrow(xa, y0, xa, y1)
+        + `<text class="sv-dt" x="${x + dir * 32}" y="${mid - 2}" text-anchor="${anchor}">${name}</text>`
+        + `<text class="sv-dv" x="${x + dir * 32}" y="${mid + 14}" text-anchor="${anchor}">${fmt(val)}</text>`;
+    };
+    const tY1 = legsDown ? yA - 8 : yH + 8, tY2 = legsDown ? yH - 8 : yA + 8;
+    return `<svg viewBox="0 0 300 ${legsDown ? top + leg + 10 : yL + 8}" aria-hidden="true">
+      ${tick(x1, tY1, x1, tY2)}${tick(x2, tY1, x2, tY2)}${arrow(x1, yA, x2, yA)}${dimLabel(150, yL, "L2", l2)}
+      <path class="sv-rod" d="M${x1} ${yE} L${x1} ${yH} L${x2} ${yH} L${x2} ${yE}"/>
+      ${side(x1, -1, "L1", l1)}${side(x2, 1, "L3", l3)}
+    </svg>`;
+  };
+
+  const stirrup = (a, h) => {
+    const k = 100 / Math.max(a, h), w = a * k, ht = h * k, x = (300 - w) / 2 - 10, y = 40;
+    return `<svg viewBox="0 0 300 ${ht + 54}" aria-hidden="true">
+      ${tick(x, y - 26, x, y - 6)}${tick(x + w, y - 26, x + w, y - 6)}${arrow(x, y - 16, x + w, y - 16)}${dimLabel(x + w / 2, y - 24, "a", a)}
+      ${tick(x + w + 6, y, x + w + 26, y)}${tick(x + w + 6, y + ht, x + w + 26, y + ht)}${arrow(x + w + 16, y, x + w + 16, y + ht)}
+      <text class="sv-dt" x="${x + w + 30}" y="${y + ht / 2 - 2}">h</text><text class="sv-dv" x="${x + w + 30}" y="${y + ht / 2 + 14}">${fmt(h)}</text>
+      <rect x="${x}" y="${y}" width="${w}" height="${ht}" rx="4" class="sv-rod"/>
+      <path class="sv-rod" d="M${x + 3} ${y + 3} l14 14 M${x + 3} ${y + 3} l18 6"/>
+      ${t(x - 8, y + 14, "135° hooks", "", 'text-anchor="end"')}
+    </svg>`;
+  };
+  const tray = (base, leg) => uBar(leg, base, leg, false);
+
+  /* ---------- member drawings ---------- */
+  const spread = (n, a, b) => n === 1 ? [(a + b) / 2] : Array.from({ length: n }, (_, i) => a + i * (b - a) / (n - 1));
+  const rectSection = (b, D, c, ds, label) => {
+    const k = Math.min(170 / b, 220 / D), w = b * k, h = D * k, x = (240 - w) / 2, y = 16;
+    return { k, x, y, w, h, svg: `<rect class="sv-con" x="${x}" y="${y}" width="${w}" height="${h}"/>
+      <rect class="sv-st" x="${x + c * k}" y="${y + c * k}" width="${w - 2 * c * k}" height="${h - 2 * c * k}" rx="3"/>
+      ${t(x + w / 2, y + h + 18, label[0] + " = " + fmt(b), "", 'text-anchor="middle"')}
+      ${t(x + w + 8, y + h / 2 + 4, label[1] + " = " + fmt(D))}` };
+  };
+  const beamSection = v => {
+    const s = rectSection(v.b, v.D, v.c, v.ds, ["b", "D"]);
+    const dot = (cx, cy, d) => `<circle class="sv-bar" cx="${cx}" cy="${cy}" r="${Math.max(3, d * s.k / 2)}"/>`;
+    const xs = d => [s.x + (v.c + v.ds + d / 2) * s.k, s.x + s.w - (v.c + v.ds + d / 2) * s.k];
+    const yt = s.y + (v.c + v.ds + v.dt / 2) * s.k, yb = s.y + s.h - (v.c + v.ds + v.db / 2) * s.k;
+    return s.svg + spread(v.nt, ...xs(v.dt)).map(x => dot(x, yt, v.dt)).join("") + spread(v.nb, ...xs(v.db)).map(x => dot(x, yb, v.db)).join("");
+  };
+  const columnSection = v => {
+    const s = rectSection(v.b, v.D, v.c, v.dt, ["b", "D"]);
+    const off = (v.c + v.dt + v.d / 2) * s.k, xl = s.x + off, xr = s.x + s.w - off, yt = s.y + off, yb = s.y + s.h - off;
+    const pts = [[xl, yt], [xr, yt], [xr, yb], [xl, yb]];
+    const sides = { L: [[xl, yt], [xl, yb]], R: [[xr, yt], [xr, yb]], T: [[xl, yt], [xr, yt]], B: [[xl, yb], [xr, yb]] };
+    const order = v.D >= v.b ? ["L", "R", "T", "B"] : ["T", "B", "L", "R"], cnt = { L: 0, R: 0, T: 0, B: 0 };
+    for (let i = 0; i < Math.max(0, v.n - 4); i++) cnt[order[i % 4]]++;
+    for (const sd of order) {
+      const [[ax, ay], [bx, by]] = sides[sd];
+      for (let j = 1; j <= cnt[sd]; j++) { const f = j / (cnt[sd] + 1); pts.push([ax + (bx - ax) * f, ay + (by - ay) * f]); }
+    }
+    return s.svg + pts.map(([cx, cy]) => `<circle class="sv-bar" cx="${cx}" cy="${cy}" r="${Math.max(3, v.d * s.k / 2)}"/>`).join("");
+  };
+  const slabPlan = v => {
+    const k = Math.min(190 / v.Ly, 200 / v.Lx), w = v.Ly * k, h = v.Lx * k, x = (230 - w) / 2, y = 16;
+    const nm = Math.min(Math.floor(v.Ly / v.sm) + 1, 45), nd = Math.min(Math.floor(v.Lx / v.sd) + 1, 45);
+    const mains = spread(nm, x + 5, x + w - 5).map(px => `<line class="sv-thin" x1="${px}" y1="${y + 4}" x2="${px}" y2="${y + h - 4}"/>`).join("");
+    const dists = spread(nd, y + 5, y + h - 5).map(py => `<line class="sv-dist" x1="${x + 4}" y1="${py}" x2="${x + w - 4}" y2="${py}"/>`).join("");
+    return `<rect class="sv-con" x="${x}" y="${y}" width="${w}" height="${h}"/>${dists}${mains}
+      ${t(x + w / 2, y + h + 18, "Ly = " + fmt(v.Ly), "", 'text-anchor="middle"')}
+      ${t(x + w + 8, y + h / 2 + 4, "Lx = " + fmt(v.Lx))}`;
+  };
+  const footingSection = v => {
+    const k = Math.min(200 / v.L, 150 / v.D), w = v.L * k, h = v.D * k, x = (230 - w) / 2, y = 56;
+    const cw = Math.max(24, w * .22), c = v.c * k;
+    const ny = Math.min(Math.floor((v.L - 2 * v.c) / v.sy) + 1, 30);
+    const dots = spread(ny, x + c + 6, x + w - c - 6).map(px => `<circle class="sv-bar" cx="${px}" cy="${y + h - c - 7}" r="3"/>`).join("");
+    return `<rect class="sv-stub" x="${x + (w - cw) / 2}" y="${y - 40}" width="${cw}" height="40"/>
+      <rect class="sv-con" x="${x}" y="${y}" width="${w}" height="${h}"/>
+      <polyline class="sv-rod" points="${x + c},${y + c} ${x + c},${y + h - c} ${x + w - c},${y + h - c} ${x + w - c},${y + c}"/>${dots}
+      ${t(x + w / 2, y + h + 18, "L = " + fmt(v.L), "", 'text-anchor="middle"')}
+      ${t(x + w + 8, y + h / 2 + 4, "D = " + fmt(v.D))}
+      ${t(x + (w - cw) / 2 + cw + 6, y - 24, "column")}`;
+  };
+
+  /* ---------- members: inputs + formulas ---------- */
+  const EL = {
+    beam: {
+      view: "Cross-section",
+      groups: [
+        ["Size", [["L", "Clear span", 4200, "mm"], ["b", "Width", 230, "mm"], ["D", "Depth", 450, "mm"], ["w", "Support width", 230, "mm"]]],
+        ["Bars", [["nt", "Top bars", 2, "nos"], ["dt", "Top bar dia", 16, "dia"], ["nb", "Bottom bars", 3, "nos"], ["db", "Bottom bar dia", 16, "dia"], ["ds", "Stirrup dia", 8, "dia"], ["s", "Stirrup spacing", 150, "mm"]]],
+        ["Project rules", [["c", "Clear cover", 25, "mm"], ["ld", "Development length", 47, "× d"]]],
+      ],
+      calc: v => {
+        const a = v.b - 2 * v.c - v.ds, h = v.D - 2 * v.c - v.ds;
+        if (a <= 0 || h <= 0) return "Cover is too large for this section.";
+        if (v.w <= v.c) return "Support width must be more than the cover.";
+        // L2 runs to the far face of each support less cover; each leg makes up the rest of Ld.
+        const L2 = v.L + 2 * (v.w - v.c), leg = d => Math.max(v.ld * d - (v.w - v.c), 0);
+        const cut = d => L2 + 2 * leg(d) - (leg(d) > 0 ? 2 * 2 * d : 0);
+        return { view: beamSection(v), rows: [
+          { mark: "T", bar: "Top bar", dia: v.dt, no: v.nt, cl: cut(v.dt), f: "L1 + L2 + L3 − 2×2d", shape: uBar(leg(v.dt), L2, leg(v.dt), true) },
+          { mark: "B", bar: "Bottom bar", dia: v.db, no: v.nb, cl: cut(v.db), f: "L1 + L2 + L3 − 2×2d", shape: uBar(leg(v.db), L2, leg(v.db), false) },
+          { mark: "ST", bar: "Stirrup", dia: v.ds, no: Math.floor(v.L / v.s) + 1, cl: 2 * (a + h) + 8 * v.ds, f: "2(a + h) + 2×10d − 3×2d − 2×3d", shape: stirrup(a, h) },
+        ] };
+      },
+    },
+    column: {
+      view: "Cross-section",
+      groups: [
+        ["Size", [["H", "Floor height", 3000, "mm"], ["b", "Width", 230, "mm"], ["D", "Depth", 450, "mm"]]],
+        ["Bars", [["n", "Main bars", 8, "nos"], ["d", "Main bar dia", 16, "dia"], ["dt", "Tie dia", 8, "dia"], ["s", "Tie spacing", 150, "mm"]]],
+        ["Project rules", [["c", "Clear cover", 40, "mm"], ["lap", "Lap length", 50, "× d"]]],
+      ],
+      calc: v => {
+        const a = v.b - 2 * v.c - v.dt, h = v.D - 2 * v.c - v.dt;
+        if (a <= 0 || h <= 0) return "Cover is too large for this section.";
+        if (v.n < 4) return "A column needs at least 4 main bars.";
+        const main = v.H + v.lap * v.d;
+        return { view: columnSection(v), rows: [
+          { mark: "M", bar: "Main bar", dia: v.d, no: v.n, cl: main, f: `H + ${v.lap}d lap`, shape: straight(main, v.lap * v.d) },
+          { mark: "R", bar: "Tie", dia: v.dt, no: Math.floor(v.H / v.s) + 1, cl: 2 * (a + h) + 8 * v.dt, f: "2(a + h) + 2×10d − 3×2d − 2×3d", shape: stirrup(a, h) },
+        ] };
+      },
+    },
+    slab: {
+      view: "Plan",
+      groups: [
+        ["Size", [["Lx", "Short span", 3600, "mm"], ["Ly", "Long span", 4500, "mm"]]],
+        ["Bars", [["dm", "Main bar dia", 10, "dia"], ["sm", "Main spacing", 150, "mm"], ["dd", "Distribution dia", 8, "dia"], ["sd", "Distribution spacing", 200, "mm"]]],
+        ["Project rules", [["c", "Clear cover", 20, "mm"], ["w", "Support beam width", 230, "mm"]]],
+      ],
+      calc: v => {
+        if (v.w <= v.c) return "Support width must be more than the cover.";
+        const main = v.Lx + 2 * (v.w - v.c), dist = v.Ly + 2 * (v.w - v.c);
+        return { view: slabPlan(v), rows: [
+          { mark: "M", bar: "Main bar, short span", dia: v.dm, no: Math.floor(v.Ly / v.sm) + 1, cl: main, f: "Lx + 2(w − c)", shape: straight(main) },
+          { mark: "D", bar: "Distribution bar", dia: v.dd, no: Math.floor(v.Lx / v.sd) + 1, cl: dist, f: "Ly + 2(w − c)", shape: straight(dist) },
+        ] };
+      },
+    },
+    footing: {
+      view: "Section along L",
+      groups: [
+        ["Size", [["L", "Length", 1800, "mm"], ["B", "Breadth", 1500, "mm"], ["D", "Depth", 450, "mm"]]],
+        ["Bars", [["dx", "Bars along L, dia", 12, "dia"], ["sx", "Spacing", 150, "mm"], ["dy", "Bars along B, dia", 12, "dia"], ["sy", "Spacing", 150, "mm"]]],
+        ["Project rules", [["c", "Clear cover", 50, "mm"]]],
+      ],
+      calc: v => {
+        if (v.L <= 2 * v.c || v.B <= 2 * v.c || v.D <= 2 * v.c) return "Cover is too large for this footing.";
+        const leg = v.D - 2 * v.c, bx = v.L - 2 * v.c, by = v.B - 2 * v.c;
+        return { view: footingSection(v), rows: [
+          { mark: "X", bar: "Bottom bar along L", dia: v.dx, no: Math.floor(by / v.sx) + 1, cl: bx + 2 * leg - 4 * v.dx, f: "(L − 2c) + 2(D − 2c) − 2×2d", shape: tray(bx, leg) },
+          { mark: "Y", bar: "Bottom bar along B", dia: v.dy, no: Math.floor(bx / v.sy) + 1, cl: by + 2 * leg - 4 * v.dy, f: "(B − 2c) + 2(D − 2c) − 2×2d", shape: tray(by, leg) },
+        ] };
+      },
+    },
+  };
+
+  /* ---------- UI ---------- */
+  const form = document.getElementById("bbForm"), note = document.getElementById("bbNote");
+  const view = document.getElementById("bbView"), cap = document.getElementById("bbViewCap");
+  const shapes = document.getElementById("bbShapes"), rows = document.getElementById("bbRows"), total = document.getElementById("bbTotal");
+  let cur = "beam", typing = false;
+
+  const build = () => {
+    form.innerHTML = EL[cur].groups.map(([legend, fields]) => `<fieldset><legend>${legend}</legend>${fields.map(([k, label, val, unit]) => {
+      const id = "f-" + cur + "-" + k;
+      const ctl = unit === "dia"
+        ? `<select id="${id}" data-k="${k}">${DIAS.map(d => `<option value="${d}"${d === val ? " selected" : ""}>${d}</option>`).join("")}</select><span class="u">mm</span>`
+        : `<input id="${id}" data-k="${k}" type="text" inputmode="numeric" value="${val}"><span class="u">${unit}</span>`;
+      return `<div class="field"><label for="${id}">${label}</label><div class="in">${ctl}</div></div>`;
+    }).join("")}</fieldset>`).join("");
+  };
+  const read = () => {
+    const v = {};
+    for (const c of form.querySelectorAll("[data-k]")) {
+      const n = parseFloat(c.value);
+      if (!(n > 0)) return null;
+      v[c.dataset.k] = n;
+    }
+    return v;
+  };
+  const render = () => {
+    const v = read();
+    if (!v) { if (!typing) note.textContent = "Enter a number above zero in every field."; return; }
+    const r = EL[cur].calc(v);
+    if (typeof r === "string") { note.textContent = r; return; }
+    note.textContent = "";
+    cap.textContent = EL[cur].view;
+    view.innerHTML = r.view;
+    shapes.innerHTML = r.rows.map(x => `<figure class="shape"><figcaption>${x.mark}: ${x.bar}</figcaption>${x.shape}</figure>`).join("");
+    let kg = 0;
+    rows.innerHTML = r.rows.map(x => {
+      const w = x.no * x.cl / 1000 * UNIT_KG[x.dia]; kg += w;
+      return `<tr><td>${x.mark}</td><td>${x.bar}</td><td>${x.dia}</td><td>${x.no}</td><td>${fmt(x.cl)}</td><td>${x.f}</td><td>${w.toFixed(2)}</td></tr>`;
+    }).join("");
+    total.textContent = kg.toFixed(2);
+  };
+  form.addEventListener("input", render);
+
+  const tabs = [...document.querySelectorAll('.tabs [role="tab"]')];
+  const select = btn => {
+    stopTyping();
+    tabs.forEach(b => { const on = b === btn; b.setAttribute("aria-selected", on); b.tabIndex = on ? 0 : -1; });
+    document.getElementById("bbPanel").setAttribute("aria-labelledby", btn.id);
+    cur = btn.dataset.el; build(); render();
+  };
+  tabs.forEach((b, i) => {
+    b.addEventListener("click", () => select(b));
+    b.addEventListener("keydown", e => {
+      const d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+      if (d) { const nb = tabs[(i + d + tabs.length) % tabs.length]; nb.focus(); select(nb); }
+    });
+  });
+
+  /* ---------- one-time typing demo when the section scrolls into view ---------- */
+  let stop = null;
+  function stopTyping() { if (stop) stop(); }
+  const typeDemo = async () => {
+    const inputs = [...form.querySelectorAll("input[data-k]")];
+    const values = inputs.map(i => i.value);
+    let halted = false;
+    typing = true;
+    stop = () => { halted = true; inputs.forEach((inp, i) => { if (!inp.value) inp.value = values[i]; inp.parentElement.classList.remove("typing"); }); typing = false; stop = null; render(); };
+    form.addEventListener("pointerdown", stopTyping, { once: true });
+    form.addEventListener("keydown", stopTyping, { once: true });
+    const wait = ms => new Promise(r => setTimeout(r, ms));
+    for (let i = 0; i < inputs.length && !halted; i++) {
+      const inp = inputs[i]; inp.parentElement.classList.add("typing"); inp.value = "";
+      for (const ch of values[i]) { if (halted) break; await wait(70); inp.value += ch; }
+      await wait(140); inp.parentElement.classList.remove("typing"); render();
+    }
+    if (!halted) { typing = false; stop = null; }
+  };
+
+  build(); render();
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!reduce && "IntersectionObserver" in window) {
+    const io = new IntersectionObserver(es => { if (es[0].isIntersecting) { io.disconnect(); typeDemo(); } }, { threshold: 0.35 });
+    io.observe(document.getElementById("bbPanel"));
+  }
 })();
 </script>
 </body>
