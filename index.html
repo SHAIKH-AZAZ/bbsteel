@@ -236,6 +236,8 @@ tfoot td { font-weight: 700; border-bottom: 0; }
 .bb-shapes { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
 .bb svg { width: 100%; height: auto; display: block; overflow: visible; }
 .bb-fig svg { max-width: 260px; margin-inline: auto; }
+.bb-draw.wide { grid-template-columns: minmax(0, 1fr); }
+.bb-draw.wide .bb-fig svg { max-width: 720px; }
 .sv-con { fill: var(--fill); stroke: var(--steel); stroke-width: 1.5; }
 .sv-stub { fill: none; stroke: var(--steel); stroke-width: 1.2; stroke-dasharray: 5 4; }
 .sv-bar { fill: var(--ink); }
@@ -1254,6 +1256,45 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
       ${t(x + w / 2, y + h + 18, label[0] + " = " + fmt(b), "", 'text-anchor="middle"')}
       ${t(x + w + 8, y + h / 2 + 4, label[1] + " = " + fmt(D))}` };
   };
+  // Beam front view (longitudinal section), drawn the way a CAD beam detail shows it.
+  const beamElevation = (v, legT, legB) => {
+    const k = 430 / (v.L + 2 * v.w), x0 = 40, x1 = x0 + (v.L + 2 * v.w) * k, wp = v.w * k;
+    const Dp = Math.max(56, Math.min(110, v.D * k)), yb = 92, cp = Math.max(5, v.c * k);
+    const yT = yb + cp + 2, yB = yb + Dp - cp - 2, xi0 = x0 + wp, xi1 = x1 - wp, xm = (xi0 + xi1) / 2;
+    const lp = l => l > 0 ? Math.max(10, Math.min(70, l * k)) : 0, lt = lp(legT), lb = lp(legB);
+    const n = Math.floor(v.L / v.s) + 1;
+    const stirrups = spread(Math.min(n, 60), xi0 + 6, xi1 - 6)
+      .map(x => `<line class="sv-st" style="stroke-width:1.2" x1="${x}" y1="${yb + cp}" x2="${x}" y2="${yb + Dp - cp}"/>`).join("");
+    const colTop = 36, colBot = yb + Dp + 36;
+    const col = x => `<rect class="sv-beam" x="${x}" y="${colTop}" width="${wp}" height="${colBot - colTop}"/>`
+      + `<path class="sv-dim" d="M${x - 4} ${colTop} l${wp / 2 + 4} -5 l${wp / 2 + 4} 5 M${x - 4} ${colBot} l${wp / 2 + 4} 5 l${wp / 2 + 4} -5"/>`;
+    const callout = (x, y, ty, txt, anchor) => `<polyline class="sv-dim" points="${x},${y} ${x},${ty} ${anchor === "end" ? x - 34 : x + 34},${ty}"/>`
+      + `<circle cx="${x}" cy="${y}" r="2" fill="var(--dim)"/>` + t(anchor === "end" ? x - 36 : x + 36, ty + 4, txt, "k", `text-anchor="${anchor}"`);
+    const sec = (() => {
+      const X = 530, Y = yb - 6, kk = Math.min(64 / v.b, 112 / v.D), w = v.b * kk, h = v.D * kk, c = v.c * kk;
+      const dot = (cx, cy, d) => `<circle class="sv-bar" cx="${cx}" cy="${cy}" r="${Math.max(2.2, d * kk / 2)}"/>`;
+      const xs = d => [X + (v.c + v.ds + d / 2) * kk, X + w - (v.c + v.ds + d / 2) * kk];
+      const ty = Y + (v.c + v.ds + v.dt / 2) * kk, by = Y + h - (v.c + v.ds + v.db / 2) * kk;
+      return `<rect class="sv-con" x="${X}" y="${Y}" width="${w}" height="${h}"/>`
+        + `<rect class="sv-st" x="${X + c}" y="${Y + c}" width="${w - 2 * c}" height="${h - 2 * c}" rx="2" style="stroke-width:1.6"/>`
+        + spread(v.nt, ...xs(v.dt)).map(x => dot(x, ty, v.dt)).join("") + spread(v.nb, ...xs(v.db)).map(x => dot(x, by, v.db)).join("")
+        + t(X + w / 2, Y - 10, "A–A", "k", 'text-anchor="middle"') + t(X + w / 2, Y + h + 16, `${fmt(v.b)} × ${fmt(v.D)}`, "", 'text-anchor="middle"');
+    })();
+    const svg = `${col(x0)}${col(x1 - wp)}
+      <rect class="sv-con" x="${xi0}" y="${yb}" width="${xi1 - xi0}" height="${Dp}"/>
+      ${stirrups}
+      <path class="sv-rod" style="stroke-width:2.6" d="M${x0 + cp} ${yT + lt} L${x0 + cp} ${yT} L${x1 - cp} ${yT} L${x1 - cp} ${yT + lt}"/>
+      <path class="sv-rod" style="stroke-width:2.6" d="M${x0 + cp + 5} ${yB - lb} L${x0 + cp + 5} ${yB} L${x1 - cp - 5} ${yB} L${x1 - cp - 5} ${yB - lb}"/>
+      ${callout(xi0 + 46, yT, yb - 24, `${v.nt}-T${v.dt}`, "start")}
+      ${callout(xi1 - 46, yB, yb + Dp + 24, `${v.nb}-T${v.db}`, "end")}
+      ${callout(xm - 30, yb + Dp - cp - 8, yb + Dp + 24, `2L-T${v.ds} @ ${fmt(v.s)} c/c`, "end")}
+      <path class="sv-dim" d="M${xm + 40} ${yb - 16} v12 M${xm + 40} ${yb + Dp + 4} v12"/>
+      ${t(xm + 44, yb - 8, "A", "k")}${t(xm + 44, yb + Dp + 16, "A", "k")}
+      ${tick(xi0, yb + Dp + 40, xi0, yb + Dp + 62)}${tick(xi1, yb + Dp + 40, xi1, yb + Dp + 62)}${arrow(xi0, yb + Dp + 51, xi1, yb + Dp + 51)}
+      ${dimLabel(xm, yb + Dp + 74, "L", v.L)}
+      ${sec}`;
+    return { svg, vb: `0 0 640 ${yb + Dp + 84}` };
+  };
   const beamSection = v => {
     const s = rectSection(v.b, v.D, v.c, v.ds, ["b", "D"]);
     const dot = (cx, cy, d) => `<circle class="sv-bar" cx="${cx}" cy="${cy}" r="${Math.max(3, d * s.k / 2)}"/>`;
@@ -1361,7 +1402,7 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
   /* ---------- members: inputs + formulas ---------- */
   const EL = {
     beam: {
-      view: "Cross-section",
+      view: "Front view",
       groups: [
         ["Size", [["L", "Clear span", 4200, "mm"], ["b", "Width", 230, "mm"], ["D", "Depth", 450, "mm"], ["w", "Support width", 230, "mm"]]],
         ["Bars", [["nt", "Top bars", 2, "nos"], ["dt", "Top bar dia", 16, "dia"], ["nb", "Bottom bars", 3, "nos"], ["db", "Bottom bar dia", 16, "dia"], ["ds", "Stirrup dia", 8, "dia"], ["s", "Stirrup spacing", 150, "mm"]]],
@@ -1374,7 +1415,8 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
         // L2 runs to the far face of each support less cover; each leg makes up the rest of Ld.
         const L2 = v.L + 2 * (v.w - v.c), leg = d => Math.max(v.ld * d - (v.w - v.c), 0);
         const cut = d => L2 + 2 * leg(d) - (leg(d) > 0 ? 2 * 2 * d : 0);
-        return { view: beamSection(v), rows: [
+        const ev = beamElevation(v, leg(v.dt), leg(v.db));
+        return { view: ev.svg, vb: ev.vb, wide: true, rows: [
           { mark: "T", bar: "Top bar", dia: v.dt, no: v.nt, cl: cut(v.dt), f: "$L_1 + L_2 + L_3 - 2 \\times 2d$", shape: uBar(leg(v.dt), L2, leg(v.dt), true) },
           { mark: "B", bar: "Bottom bar", dia: v.db, no: v.nb, cl: cut(v.db), f: "$L_1 + L_2 + L_3 - 2 \\times 2d$", shape: uBar(leg(v.db), L2, leg(v.db), false) },
           { mark: "ST", bar: "Stirrup", dia: v.ds, no: Math.floor(v.L / v.s) + 1, cl: 2 * (a + h) + 8 * v.ds, f: "$2(a + h) + 2 \\times 10d - 3 \\times 2d - 2 \\times 3d$", shape: stirrup(a, h) },
@@ -1468,6 +1510,7 @@ footer { padding-block: 28px; font-size: .875rem; color: var(--ink-soft); displa
     note.textContent = "";
     cap.textContent = EL[cur].view;
     view.setAttribute("viewBox", r.vb || "0 0 260 280");
+    view.closest(".bb-draw").classList.toggle("wide", !!r.wide);
     view.innerHTML = r.view;
     shapes.innerHTML = r.rows.map(x => `<figure class="shape"><figcaption>${x.mark}: ${x.bar}</figcaption>${x.shape}</figure>`).join("");
     let kg = 0;
